@@ -33,7 +33,7 @@ before_install:
   - sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo tee /etc/hosts
   - cat /etc/hosts # optionally check the content *after*
 # install third party tools
-  - sudo apt-get install advancecomp p7zip-full zopfli
+  - sudo apt-get install advancecomp p7zip-full
   
 # prevent Maven from running
 install:
