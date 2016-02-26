@@ -1,5 +1,7 @@
 # Ultra GZIP
 
+[<img alt="Travis CI Build Status" src="https://img.shields.io/travis/thomasWeise/ultraGzip/master.svg" height="20"/>](https://travis-ci.org/thomasWeise/ultraGzip/)
+
 This tool tries to achieve the maximum possible [`gzip`](https://en.wikipedia.org/wiki/Gzip) compression regardless of the necessary runtime.
 
 It therefore attempts to compress an array of bytes by using several different settings of different `gzip` implementations available
