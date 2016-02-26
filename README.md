@@ -37,3 +37,7 @@ installing the following additional programs:
 ## 3. Use as `Ultra GZIP` in your Java Code
 
 You can import the class `UltraGzip` and then create a job which takes an array of `byte` as input data and returns an array of `byte` as compression result. The job implements `Callable<byte>`.
+
+## 4. Licensing
+
+This software uses [JZlib](http://www.jcraft.com/jzlib/) as one of its internal `gzip` utilities. Although our software here is `GPL` licensed, JZlib is under a [BSD-style license](http://www.jcraft.com/jzlib/LICENSE.txt). The GPL licensing of our software therefore _only_ applies to our own code, while the code of JZLib follows said [BSD-style license](http://www.jcraft.com/jzlib/LICENSE.txt). The binary distribution of our software may include binary versions of JZlib.
