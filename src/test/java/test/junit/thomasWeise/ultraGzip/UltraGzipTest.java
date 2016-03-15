@@ -18,13 +18,7 @@ public class UltraGzipTest extends ToolTest<UltraGzip> {
 
   /** create */
   public UltraGzipTest() {
-    super();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  protected final UltraGzip getInstance() {
-    return UltraGzip.getInstance();
+    super(UltraGzip.getInstance());
   }
 
   /**
