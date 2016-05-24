@@ -81,16 +81,7 @@ public final class UltraGzipJobBuilder
 
   /** {@inheritDoc} */
   @Override
-  protected final void validate() {
-    super.validate();
-    UltraGzipJobBuilder._checkName(this.m_name);
-    UltraGzipJobBuilder._checkData(this.m_data);
-  }
-
-  /** {@inheritDoc} */
-  @Override
   public final UltraGzipJob create() {
-    this.validate();
     return new UltraGzipJob(this.m_data, this.m_name, this.getLogger());
   }
 }

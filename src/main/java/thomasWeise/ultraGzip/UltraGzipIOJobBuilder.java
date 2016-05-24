@@ -183,16 +183,7 @@ public final class UltraGzipIOJobBuilder extends
 
   /** {@inheritDoc} */
   @Override
-  protected final void validate() {
-    super.validate();
-    UltraGzipIOJobBuilder._validate(this.m_input, this.m_useStdIn,
-        this.m_output, this.m_useStdOut);
-  }
-
-  /** {@inheritDoc} */
-  @Override
   public final UltraGzipIOJob create() {
-    this.validate();
     return new UltraGzipIOJob(this);
   }
 }
