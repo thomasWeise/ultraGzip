@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -193,11 +192,7 @@ public final class UltraGzipJob extends ToolJob
       throw new IllegalArgumentException("Job cannot be null."); //$NON-NLS-1$
     }
 
-    if (ForkJoinTask.inForkJoinPool()) {
-      future = ForkJoinTask.adapt(job, null).fork();
-    } else {
-      future = Execute.submitToCommonPool(job, null);
-    }
+    future = Execute.parallel(job);
 
     synchronized (this.m_jobs) {
       this.m_jobs.add(future);

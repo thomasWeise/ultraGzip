@@ -50,12 +50,11 @@ public final class Main {
 
     try {
       Execute
-          .submitToCommonPool( //
+          .parallel( //
               UltraGzipIO.getInstance()//
                   .use()//
                   .configure(config)//
-                  .create(), //
-              null)//
+                  .create())//
           .get();
     } catch (final Throwable error) {
       logger = config.getLogger(Configuration.PARAM_LOGGER, null);
