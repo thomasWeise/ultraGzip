@@ -62,7 +62,5 @@ public final class Main {
         logger.log(Level.SEVERE, "Ultra GZIP has failed.", error);//$NON-NLS-1$
       }
     }
-
   }
-
 }

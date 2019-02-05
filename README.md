@@ -31,7 +31,8 @@ installing the following additional programs:
 * [gzip](https://en.wikipedia.org/wiki/Gzip) (should already be installed)
 * [AdvanceCOMP](https://en.wikipedia.org/wiki/AdvanceCOMP) (`sudo apt-get install advancecomp`)
 * [7-zip](http://www.7-zip.org/) (`sudo apt-get install p7zip-full`)
-* [zopfli](https://en.wikipedia.org/wiki/Zopfli) (`sudo apt-get install zopfli`)
+* [zopfli](http://en.wikipedia.org/wiki/Zopfli) (`sudo apt-get install zopfli`)
+* [pigz](http://zlib.net/pigz/) (`sudo apt-get install pigz`)
 
 
 ## 3. Use as `Ultra GZIP` in your Java Code

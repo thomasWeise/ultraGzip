@@ -210,6 +210,7 @@ public final class UltraGzipJob extends ToolJob
     _JavaGZip._enqueue(this);
     _JZLibGZip._enqueue(this);
     _GZIP._enqueue(this);
+    _PIGZ._enqueue(this);
     _7ZIP._enqueue(this);
     _Zopfli._enqueue(this);
 
