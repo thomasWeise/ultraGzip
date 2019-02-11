@@ -29,7 +29,7 @@ final class _7ZIP implements Runnable {
       IsFilePredicate.INSTANCE, null);
 
   /** the compression qualities to test */
-  private static final int[] QUALITIES = { 8, 9 };
+  private static final int[] QUALITIES = { 7, 8, 9 };
   /** the fast bytes to test */
   private static final int[] FAST_BYTES = { -1, 200, 258 };
   /** the passes to test */
@@ -151,11 +151,9 @@ final class _7ZIP implements Runnable {
       compressed = null;
     }
 
-    if ((result != null) && (compressed != null)) {
-      if ((this.m_quality >= 9)
-          || (result == _ERegistrationResult.IMPROVEMENT)) {
-        _ADVDEF._postprocess(this.m_owner, compressed, _7ZIP.FROM);
-      }
+    if ((result != null) && (compressed != null)
+        && (result != _ERegistrationResult.INVALID)) {
+      _ADVDEF._postprocess(this.m_owner, compressed, _7ZIP.FROM);
     }
   }
 }

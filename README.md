@@ -28,12 +28,12 @@ The following arguments are supported:
 If you are on Linux, the following utilities can improve the compression which can be achieved by
 installing the following additional programs:
 
-* [gzip](https://en.wikipedia.org/wiki/Gzip) (should already be installed)
+* [gzip](http://en.wikipedia.org/wiki/Gzip) (should already be installed)
 * [AdvanceCOMP](https://en.wikipedia.org/wiki/AdvanceCOMP) (`sudo apt-get install advancecomp`)
 * [7-zip](http://www.7-zip.org/) (`sudo apt-get install p7zip-full`)
 * [zopfli](http://en.wikipedia.org/wiki/Zopfli) (`sudo apt-get install zopfli`)
 * [pigz](http://zlib.net/pigz/) (`sudo apt-get install pigz`)
-
+* [Python 3's gzip](http://docs.python.org/3/library/gzip.html) library, which should normally be installed, too
 
 ## 3. Use as `Ultra GZIP` in your Java Code
 

@@ -70,10 +70,7 @@ final class _JZLibGZip implements Runnable {
 
     if ((compressed != null) && (res != null)
         && (res != _ERegistrationResult.INVALID)) {
-      if ((this.m_quality >= 9)
-          || (res == _ERegistrationResult.IMPROVEMENT)) {
-        _ADVDEF._postprocess(this.m_owner, compressed, _JZLibGZip.FROM);
-      }
+      _ADVDEF._postprocess(this.m_owner, compressed, _JZLibGZip.FROM);
     }
   }
 

@@ -54,7 +54,7 @@ final class _GZIP implements Runnable {
    */
   static final void _enqueue(final UltraGzipJob job) {
     if (_GZIP.__GZIP_PATH != null) {
-      for (int quality = 1; quality <= 9; quality++) {
+      for (int quality = 7; quality <= 9; quality++) {
         job._execute(new _GZIP(job, quality));
       }
     }
@@ -108,11 +108,9 @@ final class _GZIP implements Runnable {
       compressed = null;
     }
 
-    if ((result != null) && (compressed != null)) {
-      if ((this.m_quality >= 8)
-          || (result == _ERegistrationResult.IMPROVEMENT)) {
-        _ADVDEF._postprocess(this.m_owner, compressed, _GZIP.FROM);
-      }
+    if ((result != null) && (compressed != null)
+        && (result != _ERegistrationResult.INVALID)) {
+      _ADVDEF._postprocess(this.m_owner, compressed, _GZIP.FROM);
     }
   }
 }

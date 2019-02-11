@@ -69,10 +69,7 @@ final class _JavaGZip implements Runnable {
 
     if ((compressed != null) && (res != null)
         && (res != _ERegistrationResult.INVALID)) {
-      if ((this.m_quality >= 9)
-          || (res == _ERegistrationResult.IMPROVEMENT)) {
-        _ADVDEF._postprocess(this.m_owner, compressed, _JavaGZip.FROM);
-      }
+      _ADVDEF._postprocess(this.m_owner, compressed, _JavaGZip.FROM);
     }
   }
 

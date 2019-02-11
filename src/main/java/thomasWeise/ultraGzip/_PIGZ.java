@@ -55,7 +55,7 @@ final class _PIGZ implements Runnable {
    */
   static final void _enqueue(final UltraGzipJob job) {
     if (_PIGZ.__PIGZ_PATH != null) {
-      for (int quality = 1; quality <= 9; quality++) {
+      for (int quality = 7; quality <= 9; quality++) {
         job._execute(new _PIGZ(job, quality));
       }
       job._execute(new _PIGZ(job, 11));
@@ -111,11 +111,9 @@ final class _PIGZ implements Runnable {
       compressed = null;
     }
 
-    if ((result != null) && (compressed != null)) {
-      if ((this.m_quality >= 8)
-          || (result == _ERegistrationResult.IMPROVEMENT)) {
-        _ADVDEF._postprocess(this.m_owner, compressed, _PIGZ.FROM);
-      }
+    if ((result != null) && (compressed != null)
+        && (result != _ERegistrationResult.INVALID)) {
+      _ADVDEF._postprocess(this.m_owner, compressed, _PIGZ.FROM);
     }
   }
 }

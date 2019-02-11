@@ -33,21 +33,15 @@ final class _Zopfli implements Runnable {
   /** the job */
   private final UltraGzipJob m_owner;
 
-  /** do block splitting last instead of first */
-  private final boolean m_splitLast;
-
   /**
    * create the GZIP job
    *
    * @param job
    *          the owning job
-   * @param splitLast
-   *          do block splitting last instead of first
    */
-  private _Zopfli(final UltraGzipJob job, final boolean splitLast) {
+  private _Zopfli(final UltraGzipJob job) {
     super();
     this.m_owner = job;
-    this.m_splitLast = splitLast;
   }
 
   /**
@@ -58,8 +52,7 @@ final class _Zopfli implements Runnable {
    */
   static final void _enqueue(final UltraGzipJob job) {
     if (_Zopfli.__ZOPFLI_PATH != null) {
-      job._execute(new _Zopfli(job, true));
-      job._execute(new _Zopfli(job, false));
+      job._execute(new _Zopfli(job));
     }
   }
 
@@ -92,10 +85,7 @@ final class _Zopfli implements Runnable {
       epb.setDirectory(PathUtils.getTempDir());
       epb.addStringArgument("-c"); //$NON-NLS-1$
       epb.addStringArgument("--gzip"); //$NON-NLS-1$
-      epb.addStringArgument("--i1000"); //$NON-NLS-1$
-      if (this.m_splitLast) {
-        epb.addStringArgument("--splitlast"); //$NON-NLS-1$
-      }
+      epb.addStringArgument("--i2000"); //$NON-NLS-1$
       epb.addPathArgument(path);
 
       epb.setLogger(this.m_owner._getLogger());

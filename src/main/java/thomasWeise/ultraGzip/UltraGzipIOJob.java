@@ -89,8 +89,7 @@ public final class UltraGzipIOJob extends ToolJob implements Runnable {
             "B, which will now be written to the output."); //$NON-NLS-1$
       }
 
-      try (final OutputStream os = (this.m_useStdOut ? System.out
-          : //
+      try (final OutputStream os = (this.m_useStdOut ? System.out : //
           PathUtils.openOutputStream(this.m_output))) {//
         os.write(data);
         size = data.length;
