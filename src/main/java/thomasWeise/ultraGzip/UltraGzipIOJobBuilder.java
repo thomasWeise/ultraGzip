@@ -1,14 +1,14 @@
 package thomasWeise.ultraGzip;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.function.Supplier;
 
-import org.optimizationBenchmarking.utils.config.Configuration;
-import org.optimizationBenchmarking.utils.io.paths.PathUtils;
-import org.optimizationBenchmarking.utils.tools.impl.abstr.ConfigurableToolJobBuilder;
+import thomasWeise.tools.Configuration;
 
 /** Build a job for the ultrag gzip I/O tool. */
-public final class UltraGzipIOJobBuilder extends
-    ConfigurableToolJobBuilder<UltraGzipIOJob, UltraGzipIOJobBuilder> {
+public final class UltraGzipIOJobBuilder
+    implements Supplier<UltraGzipIOJob> {
 
   /** use the standard in */
   static final String PARAM_STDIN = "si"; //$NON-NLS-1$
@@ -39,28 +39,30 @@ public final class UltraGzipIOJobBuilder extends
     super();
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public final UltraGzipIOJobBuilder configure(
-      final Configuration config) {
-    Path path;
-
-    super.configure(config);
-
-    if (config.getBoolean(UltraGzipIOJobBuilder.PARAM_STDIN, false)) {
+  /**
+   * configure the job from a configuration
+   *
+   * @return this instance
+   */
+  public final UltraGzipIOJobBuilder configure() {
+    if (Boolean.parseBoolean(
+        Configuration.get(UltraGzipIOJobBuilder.PARAM_STDIN))) {
       this.setUseStdIn(true);
     }
-    path = config.getPath(UltraGzipIOJobBuilder.PARAM_IN, null);
+
+    String path =
+        Configuration.get(UltraGzipIOJobBuilder.PARAM_IN);
     if (path != null) {
-      this.setInputPath(path);
+      this.setInputPath(Paths.get(path));
     }
 
-    if (config.getBoolean(UltraGzipIOJobBuilder.PARAM_STDOUT, false)) {
+    if (Boolean.parseBoolean(
+        Configuration.get(UltraGzipIOJobBuilder.PARAM_STDOUT))) {
       this.setUseStdOut(true);
     }
-    path = config.getPath(UltraGzipIOJobBuilder.PARAM_OUT, null);
+    path = Configuration.get(UltraGzipIOJobBuilder.PARAM_OUT);
     if (path != null) {
-      this.setOutputPath(path);
+      this.setOutputPath(Paths.get(path));
     }
 
     return this;
@@ -73,12 +75,14 @@ public final class UltraGzipIOJobBuilder extends
    *          the path
    * @return this builder
    */
-  public final UltraGzipIOJobBuilder setInputPath(final Path path) {
+  public final UltraGzipIOJobBuilder
+      setInputPath(final Path path) {
     final Path use;
     if (path == null) {
-      throw new IllegalArgumentException("Input path cannot be null"); //$NON-NLS-1$
+      throw new IllegalArgumentException(
+          "Input path cannot be null"); //$NON-NLS-1$
     }
-    use = PathUtils.normalize(path);
+    use = path.normalize();
     if (use == null) {
       throw new IllegalArgumentException(//
           "Input path cannot normalize to null, but '" + //$NON-NLS-1$
@@ -90,13 +94,15 @@ public final class UltraGzipIOJobBuilder extends
   }
 
   /**
-   * Set whether data should be loaded from stdin instead from a file
+   * Set whether data should be loaded from stdin instead from a
+   * file
    *
    * @param useStdIn
    *          the standard input choice
    * @return this builder
    */
-  public final UltraGzipIOJobBuilder setUseStdIn(final boolean useStdIn) {
+  public final UltraGzipIOJobBuilder
+      setUseStdIn(final boolean useStdIn) {
     if (useStdIn) {
       this.m_input = null;
     }
@@ -111,12 +117,14 @@ public final class UltraGzipIOJobBuilder extends
    *          the path
    * @return this builder
    */
-  public final UltraGzipIOJobBuilder setOutputPath(final Path path) {
+  public final UltraGzipIOJobBuilder
+      setOutputPath(final Path path) {
     final Path use;
     if (path == null) {
-      throw new IllegalArgumentException("Output path cannot be null"); //$NON-NLS-1$
+      throw new IllegalArgumentException(
+          "Output path cannot be null"); //$NON-NLS-1$
     }
-    use = PathUtils.normalize(path);
+    use = path.normalize();
     if (use == null) {
       throw new IllegalArgumentException(//
           "Output path cannot normalize to null, but '" + //$NON-NLS-1$
@@ -128,14 +136,15 @@ public final class UltraGzipIOJobBuilder extends
   }
 
   /**
-   * Set whether data should be loaded from stdout instead of a file
+   * Set whether data should be loaded from stdout instead of a
+   * file
    *
    * @param useStdOut
    *          the standard input choice
    * @return this builder
    */
-  public final UltraGzipIOJobBuilder setUseStdOut(
-      final boolean useStdOut) {
+  public final UltraGzipIOJobBuilder
+      setUseStdOut(final boolean useStdOut) {
     if (useStdOut) {
       this.m_output = null;
     }
@@ -155,12 +164,14 @@ public final class UltraGzipIOJobBuilder extends
    * @param stdout
    *          use stdout instead?
    */
-  static final void _validate(final Path input, final boolean stdin,
-      final Path output, final boolean stdout) {
+  static final void _validate(final Path input,
+      final boolean stdin, final Path output,
+      final boolean stdout) {
     if (stdin) {
       if (input != null) {
         throw new IllegalArgumentException(
-            "Cannot use both, stdin and path '" + input + '\'' + '.'); //$NON-NLS-1$
+            "Cannot use both, stdin and path '" + input + '\'' //$NON-NLS-1$
+                + '.');
       }
     } else {
       if (input == null) {
@@ -171,7 +182,8 @@ public final class UltraGzipIOJobBuilder extends
     if (stdout) {
       if (output != null) {
         throw new IllegalArgumentException(
-            "Cannot use both, stdout and path '" + output + '\'' + '.'); //$NON-NLS-1$
+            "Cannot use both, stdout and path '" + output + '\'' //$NON-NLS-1$
+                + '.');
       }
     } else {
       if (output == null) {
@@ -183,7 +195,7 @@ public final class UltraGzipIOJobBuilder extends
 
   /** {@inheritDoc} */
   @Override
-  public final UltraGzipIOJob create() {
+  public final UltraGzipIOJob get() {
     return new UltraGzipIOJob(this);
   }
 }

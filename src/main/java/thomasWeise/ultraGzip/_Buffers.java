@@ -3,15 +3,15 @@ package thomasWeise.ultraGzip;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
-
-import org.optimizationBenchmarking.utils.io.paths.PathUtils;
 
 /** A buffer to be used to store re-useable stuff */
 final class _Buffers {
 
   /** the getter for the buffer */
-  private static final ThreadLocal<_Buffers> GET = new __ThreadLocal();
+  private static final ThreadLocal<_Buffers> GET =
+      new __ThreadLocal();
 
   /** the output buffer */
   private final __BOS m_outputBuffer;
@@ -37,8 +37,8 @@ final class _Buffers {
   }
 
   /**
-   * Load a given file into memory. This method will invalidate the
-   * contents of {@link #_getBufferedOutputStream()}.
+   * Load a given file into memory. This method will invalidate
+   * the contents of {@link #_getBufferedOutputStream()}.
    *
    * @param path
    *          the path to load
@@ -47,14 +47,14 @@ final class _Buffers {
    *           if i/o fails
    */
   final byte[] _load(final Path path) throws IOException {
-    try (final InputStream is = PathUtils.openInputStream(path)) {
+    try (final InputStream is = Files.newInputStream(path)) {
       return this._load(is);
     }
   }
 
   /**
-   * Load a given stream into memory. This method will invalidate the
-   * contents of {@link #_getBufferedOutputStream()} .
+   * Load a given stream into memory. This method will invalidate
+   * the contents of {@link #_getBufferedOutputStream()} .
    *
    * @param is
    *          the stream to load
@@ -75,7 +75,8 @@ final class _Buffers {
    * @throws IOException
    *           if i/o fails
    */
-  private final __BOS __load(final InputStream is) throws IOException {
+  private final __BOS __load(final InputStream is)
+      throws IOException {
     final byte[] buffer;
     final __BOS os;
     int read;
@@ -96,8 +97,9 @@ final class _Buffers {
    *          the input stream
    * @param data
    *          the data array
-   * @return {@code true} if the contents of the stream are the same as the
-   *         contents of the data array, {@code false} otherwise
+   * @return {@code true} if the contents of the stream are the
+   *         same as the contents of the data array,
+   *         {@code false} otherwise
    * @throws IOException
    *           if i/o fails
    */
@@ -143,7 +145,8 @@ final class _Buffers {
   }
 
   /** create */
-  private static final class __ThreadLocal extends ThreadLocal<_Buffers> {
+  private static final class __ThreadLocal
+      extends ThreadLocal<_Buffers> {
     /** create the thread local buffer local */
     __ThreadLocal() {
       super();
@@ -169,8 +172,9 @@ final class _Buffers {
      *
      * @param data
      *          the data
-     * @return {@code true} if the contents of this buffer are the same as
-     *         the given data, {@code false} otherwise
+     * @return {@code true} if the contents of this buffer are
+     *         the same as the given data, {@code false}
+     *         otherwise
      */
     final boolean _compare(final byte[] data) {
       final byte[] cmp;

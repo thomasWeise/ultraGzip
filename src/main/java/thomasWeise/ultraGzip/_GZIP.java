@@ -3,17 +3,15 @@ package thomasWeise.ultraGzip;
 import java.io.OutputStream;
 import java.nio.file.Path;
 
-import org.optimizationBenchmarking.utils.io.paths.PathUtils;
-import org.optimizationBenchmarking.utils.io.paths.predicates.CanExecutePredicate;
-import org.optimizationBenchmarking.utils.io.paths.predicates.FileNamePredicate;
-import org.optimizationBenchmarking.utils.io.paths.predicates.IsFilePredicate;
-import org.optimizationBenchmarking.utils.predicates.AndPredicate;
-import org.optimizationBenchmarking.utils.tools.impl.process.EProcessStream;
-import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcess;
-import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcessExecutor;
+import thomasWeise.tools.Configuration;
+import thomasWeise.tools.EProcessStream;
+import thomasWeise.tools.ExternalProcess;
+import thomasWeise.tools.ExternalProcessExecutor;
+import thomasWeise.tools.TempDir;
 
 /**
- * The internal class for using the operating system's GZIP implementation.
+ * The internal class for using the operating system's GZIP
+ * implementation.
  */
 final class _GZIP implements Runnable {
 
@@ -21,10 +19,8 @@ final class _GZIP implements Runnable {
   private static final String FROM = "GZIP installation"; //$NON-NLS-1$
 
   /** the GZIP executable */
-  private static final Path __GZIP_PATH = PathUtils.findFirstInPath(
-      new AndPredicate<>(new FileNamePredicate(true, "gzip"), //$NON-NLS-1$
-          CanExecutePredicate.INSTANCE), //
-      IsFilePredicate.INSTANCE, null);
+  private static final Path __GZIP_PATH =
+      Configuration.getExecutable("gzip"); //$NON-NLS-1$
 
   /** the job */
   private final UltraGzipJob m_owner;
@@ -73,19 +69,18 @@ final class _GZIP implements Runnable {
 
     compressed = null;
     result = null;
-    try {
-      try (final ExternalProcess ep = ExternalProcessExecutor.getInstance()
-          .use()//
-          .setDirectory(PathUtils.getTempDir())//
-          .setExecutable(_GZIP.__GZIP_PATH)//
-          .addStringArgument("-" + this.m_quality) //$NON-NLS-1$
-          .addStringArgument("-c") //$NON-NLS-1$
-          .setLogger(this.m_owner._getLogger())//
-          .setStdErr(EProcessStream.REDIRECT_TO_LOGGER)//
-          .setStdIn(EProcessStream.AS_STREAM)//
-          .setStdOut(EProcessStream.AS_STREAM)//
-          .setDirectory(PathUtils.getTempDir())//
-          .create()) {
+    try (final TempDir temp = new TempDir()) {
+      try (final ExternalProcess ep =
+          ExternalProcessExecutor.getInstance().get()//
+              .setDirectory(temp.getPath())//
+              .setExecutable(_GZIP.__GZIP_PATH)//
+              .addStringArgument("-" + this.m_quality) //$NON-NLS-1$
+              .addStringArgument("-c") //$NON-NLS-1$
+              .setStdErr(EProcessStream.INHERIT)//
+              .setStdIn(EProcessStream.AS_STREAM)//
+              .setStdOut(EProcessStream.AS_STREAM)//
+              .setDirectory(temp.getPath())//
+              .get()) {
 
         try (final OutputStream os = ep.getStdIn()) {
           os.write(this.m_owner.m_data);

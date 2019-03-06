@@ -1,11 +1,10 @@
 package thomasWeise.ultraGzip;
 
-import org.optimizationBenchmarking.utils.text.TextUtils;
-import org.optimizationBenchmarking.utils.tools.impl.abstr.ToolJobBuilder;
+import java.util.function.Supplier;
 
 /** Build a job for the ultrag gzip. */
 public final class UltraGzipJobBuilder
-    extends ToolJobBuilder<UltraGzipJob, UltraGzipJobBuilder> {
+    implements Supplier<UltraGzipJob> {
 
   /** the data */
   private byte[] m_data;
@@ -28,8 +27,8 @@ public final class UltraGzipJobBuilder
   static final String _checkName(final String name) {
     final String str;
 
-    str = TextUtils.prepare(name);
-    if (str == null) {
+    str = name.trim();
+    if (str.isEmpty()) {
       throw new IllegalArgumentException(//
           "Name cannot be empty string, null, or just composed white space, but '" //$NON-NLS-1$
               + name + "' falls into this category."); //$NON-NLS-1$
@@ -81,7 +80,7 @@ public final class UltraGzipJobBuilder
 
   /** {@inheritDoc} */
   @Override
-  public final UltraGzipJob create() {
-    return new UltraGzipJob(this.m_data, this.m_name, this.getLogger());
+  public final UltraGzipJob get() {
+    return new UltraGzipJob(this.m_data, this.m_name);
   }
 }

@@ -1,9 +1,10 @@
 package thomasWeise.ultraGzip;
 
-import org.optimizationBenchmarking.utils.tools.impl.abstr.Tool;
+import java.util.function.Supplier;
 
 /** The ultra gzip tool. */
-public final class UltraGzip extends Tool {
+public final class UltraGzip
+    implements Supplier<UltraGzipJobBuilder> {
 
   /** create */
   UltraGzip() {
@@ -18,13 +19,7 @@ public final class UltraGzip extends Tool {
 
   /** {@inheritDoc} */
   @Override
-  public final boolean canUse() {
-    return true;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public final UltraGzipJobBuilder use() {
+  public final UltraGzipJobBuilder get() {
     return new UltraGzipJobBuilder();
   }
 

@@ -5,15 +5,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.optimizationBenchmarking.utils.parallel.Execute;
-import org.optimizationBenchmarking.utils.tools.impl.abstr.ToolJob;
+import thomasWeise.tools.ConsoleIO;
+import thomasWeise.tools.Execute;
 
 /** The ultra gzip job. */
-public final class UltraGzipJob extends ToolJob
-    implements Callable<byte[]> {
+public final class UltraGzipJob implements Callable<byte[]> {
 
   /** the data */
   final byte[] m_data;
@@ -34,11 +31,9 @@ public final class UltraGzipJob extends ToolJob
    *          the data to compress
    * @param name
    *          the name of the data
-   * @param logger
-   *          the logger
    */
-  UltraGzipJob(final byte[] data, final String name, final Logger logger) {
-    super(logger);
+  UltraGzipJob(final byte[] data, final String name) {
+    super();
 
     UltraGzipJobBuilder._checkData(data);
 
@@ -60,17 +55,16 @@ public final class UltraGzipJob extends ToolJob
   final _ERegistrationResult _register(final byte[] data,
       final String from) {
     final _Buffers buffer;
-    final Logger logger;
     byte[] best;
 
     valid: {
-
       if ((data == null) || (data.length <= 0)) {
         break valid;
       }
 
       best = this.m_best;
-      if ((best != null) && ((3L * best.length) < (2L * data.length))) {
+      if ((best != null)
+          && ((3L * best.length) < (2L * data.length))) {
         // far from improvement, skip checking contents
         // we might still get an improvement after refinement
         return _ERegistrationResult.NO_IMPROVEMENT;
@@ -79,12 +73,12 @@ public final class UltraGzipJob extends ToolJob
       // ok, it might be that the new data is better, let's check
       buffer = _Buffers._get();
 
-      try (final ByteArrayInputStream bis = new ByteArrayInputStream(
-          data)) {
-        // check if data is consistent using Java's GZIPInputStream
-        try (
-            final java.util.zip.GZIPInputStream gis = new java.util.zip.GZIPInputStream(
-                bis)) {
+      try (final ByteArrayInputStream bis =
+          new ByteArrayInputStream(data)) {
+        // check if data is consistent using Java's
+        // GZIPInputStream
+        try (final java.util.zip.GZIPInputStream gis =
+            new java.util.zip.GZIPInputStream(bis)) {
           if (!(buffer._compare(gis, this.m_data))) {
             break valid;
           }
@@ -98,10 +92,10 @@ public final class UltraGzipJob extends ToolJob
 
         bis.reset();
 
-        // check if data is consistent using jzlib's GZIPInputStream
-        try (
-            final com.jcraft.jzlib.GZIPInputStream gis = new com.jcraft.jzlib.GZIPInputStream(
-                bis)) {
+        // check if data is consistent using jzlib's
+        // GZIPInputStream
+        try (final com.jcraft.jzlib.GZIPInputStream gis =
+            new com.jcraft.jzlib.GZIPInputStream(bis)) {
           if (!(buffer._compare(gis, this.m_data))) {
             break valid;
           }
@@ -111,33 +105,30 @@ public final class UltraGzipJob extends ToolJob
         break valid;
       }
 
-      // if we get here, the compression was successful and likely yielded
+      // if we get here, the compression was successful and
+      // likely yielded
       // an improvement
       synchronized (this.m_name) {
-        if ((this.m_best != null) && (this.m_best.length <= data.length)) {
+        if ((this.m_best != null)
+            && (this.m_best.length <= data.length)) {
           return _ERegistrationResult.NO_IMPROVEMENT;
         }
         this.m_best = data;
       }
 
-      logger = this.getLogger();
-      if ((logger != null) && (logger.isLoggable(Level.INFO))) {
-        logger.info(
-            from + " improved minimal gzip archive size when packing "//$NON-NLS-1$
-                + this.m_name + " down to " + //$NON-NLS-1$
-                data.length + "B (" + //$NON-NLS-1$
-                (((100L * data.length) + (data.length - 1))
-                    / this.m_data.length)
-                + "%)."); //$NON-NLS-1$
-      }
+      ConsoleIO.stdout(from
+          + " improved minimal gzip archive size when packing "//$NON-NLS-1$
+          + this.m_name + " down to " + //$NON-NLS-1$
+          data.length + "B (" + //$NON-NLS-1$
+          (((100L * data.length) + (data.length - 1))
+              / this.m_data.length)
+          + "%)."); //$NON-NLS-1$
       return _ERegistrationResult.IMPROVEMENT;
     }
 
-    logger = this.getLogger();
-    if ((logger != null) && (logger.isLoggable(Level.WARNING))) {
-      logger.warning(from + " produced invalid gzip archive for " + //$NON-NLS-1$
-          this.m_name + '.');
-    }
+    ConsoleIO
+        .stdout(from + " produced invalid gzip archive for " + //$NON-NLS-1$
+            this.m_name + '.');
     return _ERegistrationResult.INVALID;
   }
 
@@ -150,15 +141,10 @@ public final class UltraGzipJob extends ToolJob
    *          the error
    */
   final void _error(final Throwable error, final String from) {
-    final Logger logger;
-
-    logger = this.getLogger();
-    if ((logger != null) && (logger.isLoggable(Level.WARNING))) {
-      logger.log(Level.WARNING,
-          "UltraGzip has encountered the following exception in " + from //$NON-NLS-1$
-              + " when packing " + this.m_name + '.', //$NON-NLS-1$
-          error);
-    }
+    ConsoleIO.stderr(
+        "UltraGzip has encountered the following exception in " //$NON-NLS-1$
+            + from + " when packing " + this.m_name + '.', //$NON-NLS-1$
+        error);
   }
 
   /**
@@ -170,13 +156,9 @@ public final class UltraGzipJob extends ToolJob
    *          the warning message
    */
   final void _warning(final String from, final String warning) {
-    final Logger logger;
-
-    logger = this.getLogger();
-    if ((logger != null) && (logger.isLoggable(Level.WARNING))) {
-      logger.warning("Problem encountered when applying " + from + //$NON-NLS-1$
-          " to " + this.m_name + ": " + warning);//$NON-NLS-1$//$NON-NLS-2$
-    }
+    ConsoleIO
+        .stdout("Problem encountered when applying " + from + //$NON-NLS-1$
+            " to " + this.m_name + ": " + warning);//$NON-NLS-1$//$NON-NLS-2$
   }
 
   /**
@@ -239,20 +221,21 @@ public final class UltraGzipJob extends ToolJob
     }
 
     if (best == null) {
-      throw new IllegalStateException("Gzipping of " + this.m_name //$NON-NLS-1$
-          + " failed."); //$NON-NLS-1$
+      throw new IllegalStateException(
+          "Gzipping of " + this.m_name //$NON-NLS-1$
+              + " failed."); //$NON-NLS-1$
     }
     return best;
   }
 
   /**
-   * Check whether a given data size might be promising for being a new
-   * better result.
+   * Check whether a given data size might be promising for being
+   * a new better result.
    *
    * @param size
    *          the size
-   * @return {@code true} if it may make sense to register the result of
-   *         that size, {@code false} otherwise
+   * @return {@code true} if it may make sense to register the
+   *         result of that size, {@code false} otherwise
    */
   final boolean _isPromising(final long size) {
     final byte[] res;
@@ -264,27 +247,18 @@ public final class UltraGzipJob extends ToolJob
   }
 
   /**
-   * Get the logger of this job
-   *
-   * @return the logger of this job
-   */
-  final Logger _getLogger() {
-    return this.getLogger();
-  }
-
-  /**
    * Print a warning regarding a non-zero return code
    *
    * @param returnCode
-   *          the program's return code (should not be {@code 0} if you
-   *          call this method)
+   *          the program's return code (should not be {@code 0}
+   *          if you call this method)
    * @param from
    *          the "from" identifier
    * @param path
    *          the path to the program
    */
-  final void _processError(final int returnCode, final String from,
-      final Path path) {
+  final void _processError(final int returnCode,
+      final String from, final Path path) {
     this._warning(from, "program " + path + //$NON-NLS-1$
         " terminated with exit code " + returnCode + '.');//$NON-NLS-1$
   }

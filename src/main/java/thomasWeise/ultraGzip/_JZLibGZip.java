@@ -53,15 +53,17 @@ final class _JZLibGZip implements Runnable {
     buffers = _Buffers._get();
     res = _ERegistrationResult.INVALID;
     compressed = null;
-    try (final ByteArrayOutputStream bos = buffers
-        ._getBufferedOutputStream()) {
-      try (final GZIPOutputStream gzo = new __JZLibGZIPOutputStream(bos,
-          this.m_owner.m_data.length, this.m_quality)) {
+    try (final ByteArrayOutputStream bos =
+        buffers._getBufferedOutputStream()) {
+      try (final GZIPOutputStream gzo =
+          new __JZLibGZIPOutputStream(bos,
+              this.m_owner.m_data.length, this.m_quality)) {
         gzo.write(_JZLibGZip.this.m_owner.m_data);
       }
 
       compressed = bos.toByteArray();
-      res = _JZLibGZip.this.m_owner._register(compressed, _JZLibGZip.FROM);
+      res = _JZLibGZip.this.m_owner._register(compressed,
+          _JZLibGZip.FROM);
     } catch (final Throwable error) {
       compressed = null;
       res = _ERegistrationResult.INVALID;
@@ -70,7 +72,8 @@ final class _JZLibGZip implements Runnable {
 
     if ((compressed != null) && (res != null)
         && (res != _ERegistrationResult.INVALID)) {
-      _ADVDEF._postprocess(this.m_owner, compressed, _JZLibGZip.FROM);
+      _ADVDEF._postprocess(this.m_owner, compressed,
+          _JZLibGZip.FROM);
     }
   }
 
@@ -92,8 +95,8 @@ final class _JZLibGZip implements Runnable {
      */
     __JZLibGZIPOutputStream(final ByteArrayOutputStream _out,
         final int size, final int level) throws IOException {
-      super(_out, new com.jcraft.jzlib.Deflater(level, 15 + 16), size,
-          false);
+      super(_out, new com.jcraft.jzlib.Deflater(level, 15 + 16),
+          size, false);
       this.mydeflater = true;
     }
   }

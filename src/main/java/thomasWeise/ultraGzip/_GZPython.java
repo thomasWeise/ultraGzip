@@ -5,14 +5,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-import org.optimizationBenchmarking.utils.io.paths.PathUtils;
-import org.optimizationBenchmarking.utils.io.paths.predicates.CanExecutePredicate;
-import org.optimizationBenchmarking.utils.io.paths.predicates.FileNamePredicate;
-import org.optimizationBenchmarking.utils.io.paths.predicates.IsFilePredicate;
-import org.optimizationBenchmarking.utils.predicates.AndPredicate;
-import org.optimizationBenchmarking.utils.tools.impl.process.EProcessStream;
-import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcess;
-import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcessExecutor;
+import thomasWeise.tools.Configuration;
+import thomasWeise.tools.EProcessStream;
+import thomasWeise.tools.ExternalProcess;
+import thomasWeise.tools.ExternalProcessExecutor;
+import thomasWeise.tools.TempDir;
 
 /**
  * The internal class for using the Python's GZIP implementation.
@@ -20,13 +17,12 @@ import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcessExec
 final class _GZPython implements Runnable {
 
   /** the source name */
-  private static final String FROM = "Python GZip Implementation"; //$NON-NLS-1$
+  private static final String FROM =
+      "Python GZip Implementation"; //$NON-NLS-1$
 
   /** the GZIP executable */
-  private static final Path __PYTHON_PATH = PathUtils.findFirstInPath(
-      new AndPredicate<>(new FileNamePredicate(true, "python3"), //$NON-NLS-1$
-          CanExecutePredicate.INSTANCE), //
-      IsFilePredicate.INSTANCE, null);
+  private static final Path __PYTHON_PATH =
+      Configuration.getExecutable("python3"); //$NON-NLS-1$
 
   /** the job */
   private final UltraGzipJob m_owner;
@@ -67,45 +63,44 @@ final class _GZPython implements Runnable {
 
     compressed = null;
     result = null;
-    try {
+    try (final TempDir temp = new TempDir()) {
 
-      final Path tempFile = Files.createTempFile("gzipper", //$NON-NLS-1$
-          "py");//$NON-NLS-1$
-      try {
-        Files.copy(_GZPython.class.getResourceAsStream("gzipper.py"), //$NON-NLS-1$
-            tempFile, StandardCopyOption.REPLACE_EXISTING);
+      final Path tempFile =
+          Files.createTempFile(temp.getPath(), "gzipper", //$NON-NLS-1$
+              "py");//$NON-NLS-1$
 
-        try (final ExternalProcess ep = ExternalProcessExecutor
-            .getInstance().use()//
-            .setDirectory(PathUtils.getTempDir())//
-            .setExecutable(_GZPython.__PYTHON_PATH)//
-            .addPathArgument(tempFile) //
-            .setLogger(this.m_owner._getLogger())//
-            .setStdErr(EProcessStream.REDIRECT_TO_LOGGER)//
-            .setStdIn(EProcessStream.AS_STREAM)//
-            .setStdOut(EProcessStream.AS_STREAM)//
-            .setDirectory(PathUtils.getTempDir())//
-            .create()) {
+      Files.copy(
+          _GZPython.class.getResourceAsStream("gzipper.py"), //$NON-NLS-1$
+          tempFile, StandardCopyOption.REPLACE_EXISTING);
 
-          try (final OutputStream os = ep.getStdIn()) {
-            os.write(this.m_owner.m_data);
-          }
+      try (final ExternalProcess ep =
+          ExternalProcessExecutor.getInstance().get()//
+              .setDirectory(temp.getPath())//
+              .setExecutable(_GZPython.__PYTHON_PATH)//
+              .addPathArgument(tempFile) //
+              .setStdErr(EProcessStream.INHERIT)//
+              .setStdIn(EProcessStream.AS_STREAM)//
+              .setStdOut(EProcessStream.AS_STREAM)//
+              .setDirectory(temp.getPath())//
+              .get()) {
 
-          compressed = _Buffers._get()._load(ep.getStdOut());
-          result = this.m_owner._register(compressed, _GZPython.FROM);
-
-          if ((retCode = ep.waitFor()) != 0) {
-            this.m_owner._processError(retCode, _GZPython.FROM,
-                _GZPython.__PYTHON_PATH);
-          } else {
-            result = null;
-            compressed = null;
-          }
+        try (final OutputStream os = ep.getStdIn()) {
+          os.write(this.m_owner.m_data);
         }
 
-      } finally {
-        Files.delete(tempFile);
+        compressed = _Buffers._get()._load(ep.getStdOut());
+        result =
+            this.m_owner._register(compressed, _GZPython.FROM);
+
+        if ((retCode = ep.waitFor()) != 0) {
+          this.m_owner._processError(retCode, _GZPython.FROM,
+              _GZPython.__PYTHON_PATH);
+        } else {
+          result = null;
+          compressed = null;
+        }
       }
+
     } catch (final Throwable ioe) { // ignore!
       this.m_owner._error(ioe, _GZPython.FROM);
       result = null;
@@ -114,7 +109,8 @@ final class _GZPython implements Runnable {
 
     if ((result != null) && (compressed != null)
         && (result != _ERegistrationResult.INVALID)) {
-      _ADVDEF._postprocess(this.m_owner, compressed, _GZPython.FROM);
+      _ADVDEF._postprocess(this.m_owner, compressed,
+          _GZPython.FROM);
     }
   }
 }

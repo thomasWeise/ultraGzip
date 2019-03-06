@@ -8,7 +8,8 @@ import java.util.zip.GZIPOutputStream;
 final class _JavaGZip implements Runnable {
 
   /** the source name */
-  private static final String FROM = "Java's GZIP implementation"; //$NON-NLS-1$
+  private static final String FROM =
+      "Java's GZIP implementation"; //$NON-NLS-1$
 
   /** the job */
   private final UltraGzipJob m_owner;
@@ -52,15 +53,17 @@ final class _JavaGZip implements Runnable {
     buffers = _Buffers._get();
     res = _ERegistrationResult.INVALID;
     compressed = null;
-    try (final ByteArrayOutputStream bos = buffers
-        ._getBufferedOutputStream()) {
-      try (final GZIPOutputStream gzo = new __JavaGZIPOutputStream(bos,
-          this.m_owner.m_data.length, this.m_quality)) {
+    try (final ByteArrayOutputStream bos =
+        buffers._getBufferedOutputStream()) {
+      try (final GZIPOutputStream gzo =
+          new __JavaGZIPOutputStream(bos,
+              this.m_owner.m_data.length, this.m_quality)) {
         gzo.write(_JavaGZip.this.m_owner.m_data);
       }
 
       compressed = bos.toByteArray();
-      res = _JavaGZip.this.m_owner._register(compressed, _JavaGZip.FROM);
+      res = _JavaGZip.this.m_owner._register(compressed,
+          _JavaGZip.FROM);
     } catch (final Throwable error) {
       compressed = null;
       res = _ERegistrationResult.INVALID;
@@ -69,7 +72,8 @@ final class _JavaGZip implements Runnable {
 
     if ((compressed != null) && (res != null)
         && (res != _ERegistrationResult.INVALID)) {
-      _ADVDEF._postprocess(this.m_owner, compressed, _JavaGZip.FROM);
+      _ADVDEF._postprocess(this.m_owner, compressed,
+          _JavaGZip.FROM);
     }
   }
 

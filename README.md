@@ -7,10 +7,9 @@ This tool tries to achieve the maximum possible [`gzip`](https://en.wikipedia.or
 It therefore attempts to compress an array of bytes by using several different settings of different `gzip` implementations available
 for Java, as well as other compression software installed on the system.
 
-
 ## 1. How to use `Ultra GZIP` from the Command Line
 
-Run `java -jar ultraGzip.jar ARGUMENTS`
+Run `java -jar ultraGzip-0.8.8-full.jar ARGUMENTS`
 
 The following arguments are supported:
 
@@ -19,8 +18,6 @@ The following arguments are supported:
 - `out=/path/to/file` the path to the file where the compressed data should be written to
 - `so` write the compressed contents to `stdout` instead of a file. You must specify either `out=...` or the `so` option.
 - `help` print the help screen
-- `logger=global,ALL` show progress information (odd, but, ... well)
-- `help` show help
 
 
 ## 2. Requirements
@@ -37,8 +34,19 @@ installing the following additional programs:
 
 ## 3. Use as `Ultra GZIP` in your Java Code
 
-You can import the class `UltraGzip` and then create a job which takes an array of `byte` as input data and returns an array of `byte` as compression result. The job implements `Callable<byte>`.
+You can import the class `UltraGzip` and then create a job which takes an array of `byte` as input data and returns an array of `byte` as compression result. The job implements `Callable<byte[]>`.
 
 ## 4. Licensing
 
-This software uses [JZlib](http://www.jcraft.com/jzlib/) as one of its internal `gzip` utilities. Although our software here is `GPL` licensed, JZlib is under a [BSD-style license](http://www.jcraft.com/jzlib/LICENSE.txt). The GPL licensing of our software therefore _only_ applies to our own code, while the code of JZLib follows said [BSD-style license](http://www.jcraft.com/jzlib/LICENSE.txt). The binary distribution of our software may include binary versions of JZlib.
+This software uses [JZlib](http://www.jcraft.com/jzlib/) as one of its internal `gzip` utilities. Although our software here is `GPL` licensed, JZlib is under a [BSD-style license](http://www.jcraft.com/jzlib/LICENSE.txt).
+The GPL licensing of our software therefore _only_ applies to our own code, while the code of JZLib follows said [BSD-style license](http://www.jcraft.com/jzlib/LICENSE.txt).
+The binary distribution of our software may include binary versions of JZlib.
+
+## 5. Contact
+
+If you have any questions or suggestions, please contact
+[Prof. Dr. Thomas Weise](http://iao.hfuu.edu.cn/team/director) of the
+[Institute of Applied Optimization](http://iao.hfuu.edu.cn/) at
+[Hefei University](http://www.hfuu.edu.cn) in
+Hefei, Anhui, China via
+email to [tweise@hfuu.edu.cn](mailto:tweise@hfuu.edu.cn) with CC to [tweise@ustc.edu.cn](mailto:tweise@ustc.edu.cn).

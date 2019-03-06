@@ -3,15 +3,12 @@ package thomasWeise.ultraGzip;
 import java.io.OutputStream;
 import java.nio.file.Path;
 
-import org.optimizationBenchmarking.utils.io.paths.PathUtils;
-import org.optimizationBenchmarking.utils.io.paths.predicates.CanExecutePredicate;
-import org.optimizationBenchmarking.utils.io.paths.predicates.FileNamePredicate;
-import org.optimizationBenchmarking.utils.io.paths.predicates.IsFilePredicate;
-import org.optimizationBenchmarking.utils.predicates.AndPredicate;
-import org.optimizationBenchmarking.utils.tools.impl.process.EProcessStream;
-import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcess;
-import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcessBuilder;
-import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcessExecutor;
+import thomasWeise.tools.Configuration;
+import thomasWeise.tools.EProcessStream;
+import thomasWeise.tools.ExternalProcess;
+import thomasWeise.tools.ExternalProcessBuilder;
+import thomasWeise.tools.ExternalProcessExecutor;
+import thomasWeise.tools.TempDir;
 
 /**
  * The internal class for using the operating system's 7-zip
@@ -23,10 +20,8 @@ final class _7ZIP implements Runnable {
   private static final String FROM = "7-Zip installation"; //$NON-NLS-1$
 
   /** the GZIP executable */
-  private static final Path __7ZIP_PATH = PathUtils.findFirstInPath(
-      new AndPredicate<>(new FileNamePredicate(true, "7z"), //$NON-NLS-1$
-          CanExecutePredicate.INSTANCE), //
-      IsFilePredicate.INSTANCE, null);
+  private static final Path __7ZIP_PATH =
+      Configuration.getExecutable("7z"); //$NON-NLS-1$
 
   /** the compression qualities to test */
   private static final int[] QUALITIES = { 7, 8, 9 };
@@ -102,9 +97,9 @@ final class _7ZIP implements Runnable {
     compressed = null;
     result = null;
 
-    try {
-      epb = ExternalProcessExecutor.getInstance().use();
-      epb.setDirectory(PathUtils.getTempDir());
+    try (final TempDir temp = new TempDir()) {
+      epb = ExternalProcessExecutor.getInstance().get();
+      epb.setDirectory(temp.getPath());
       epb.setExecutable(_7ZIP.__7ZIP_PATH);
       epb.addStringArgument("a"); //$NON-NLS-1$
       epb.addStringArgument("invalid"); //$NON-NLS-1$
@@ -119,15 +114,14 @@ final class _7ZIP implements Runnable {
         epb.addStringArgument("-mpass=" + this.m_passes); //$NON-NLS-1$
       }
       epb.addStringArgument("-w" + //$NON-NLS-1$
-          PathUtils.getPhysicalPath(PathUtils.getTempDir(), false));
+          temp.getPath());
 
-      epb.setDirectory(PathUtils.getTempDir());
-      epb.setLogger(this.m_owner._getLogger());
-      epb.setStdErr(EProcessStream.REDIRECT_TO_LOGGER);
+      epb.setDirectory(temp.getPath());
+      epb.setStdErr(EProcessStream.INHERIT);
       epb.setStdIn(EProcessStream.AS_STREAM);
       epb.setStdOut(EProcessStream.AS_STREAM);
 
-      try (final ExternalProcess ep = epb.create()) {
+      try (final ExternalProcess ep = epb.get()) {
         epb = null;
 
         try (final OutputStream os = ep.getStdIn()) {

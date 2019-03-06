@@ -1,40 +1,19 @@
 ##
 ## Build with Travis.CI
 ##
-## https://travis-ci.org/optimizationBenchmarking/utils-base
-#
-# The basic utility classes of the optimizationBenchmarking.org tool chain
-# are a Java 7.0 Project.
 language: java
 
-# By default, it runs under Java 7
+# By default, it runs under Java 8
 jdk:
-  - oraclejdk7
-  - openjdk7
   - oraclejdk8
+  - oraclejdk9
+  - openjdk8
     
 # Cache Maven dependencies to speed up builds.
 cache:
   directories:
   - $HOME/.m2
 
-# custom build step
-script: ant
-
 before_install:
-# Install the required Ant version
-  - wget "https://raw.githubusercontent.com/optimizationBenchmarking/utils-build/master/antWebInstallerLinux.sh"
-  - chmod 755 antWebInstallerLinux.sh
-  - sudo ./antWebInstallerLinux.sh  
-# fix for buffer overflows in getLocalHostName
-# https://github.com/travis-ci/travis-ci/issues/5227
-  - cat /etc/hosts # optionally check the content *before*
-  - sudo hostname "$(hostname | cut -c1-63)"
-  - sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo tee /etc/hosts
-  - cat /etc/hosts # optionally check the content *after*
 # install third party tools
-  - sudo apt-get install advancecomp p7zip-full
-  
-# prevent Maven from running
-install:
-  - echo "Nothing."
+  - sudo apt-get install advancecomp p7zip-full zopfli pigz

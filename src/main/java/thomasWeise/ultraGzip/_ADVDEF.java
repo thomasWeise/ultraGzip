@@ -5,30 +5,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import org.optimizationBenchmarking.utils.io.paths.PathUtils;
-import org.optimizationBenchmarking.utils.io.paths.TempDir;
-import org.optimizationBenchmarking.utils.io.paths.predicates.CanExecutePredicate;
-import org.optimizationBenchmarking.utils.io.paths.predicates.FileNamePredicate;
-import org.optimizationBenchmarking.utils.io.paths.predicates.IsFilePredicate;
-import org.optimizationBenchmarking.utils.predicates.AndPredicate;
-import org.optimizationBenchmarking.utils.tools.impl.process.EProcessStream;
-import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcess;
-import org.optimizationBenchmarking.utils.tools.impl.process.ExternalProcessExecutor;
+import thomasWeise.tools.Configuration;
+import thomasWeise.tools.EProcessStream;
+import thomasWeise.tools.ExternalProcess;
+import thomasWeise.tools.ExternalProcessExecutor;
+import thomasWeise.tools.TempDir;
 
 /** The compressor class used Advanced Computing. */
 final class _ADVDEF implements Runnable {
 
   /** the advdef executable */
-  private static final Path __ADVDEF_PATH = PathUtils.findFirstInPath(
-      new AndPredicate<>(new FileNamePredicate(true, "advdef"), //$NON-NLS-1$
-          CanExecutePredicate.INSTANCE), //
-      IsFilePredicate.INSTANCE, null);
+  private static final Path __ADVDEF_PATH =
+      Configuration.getExecutable("advdef"); //$NON-NLS-1$
 
   /** the source name */
   private static final String FROM = "AdvanceComp"; //$NON-NLS-1$
   /** the prefix name */
-  private static final String FROM_PREFIX = _ADVDEF.FROM
-      + " recompressing results of "; //$NON-NLS-1$
+  private static final String FROM_PREFIX =
+      _ADVDEF.FROM + " recompressing results of "; //$NON-NLS-1$
 
   /** the job */
   private final UltraGzipJob m_owner;
@@ -73,12 +67,12 @@ final class _ADVDEF implements Runnable {
    * @param source
    *          the source job
    */
-  static final void _postprocess(final UltraGzipJob job, final byte[] data,
-      final String source) {
+  static final void _postprocess(final UltraGzipJob job,
+      final byte[] data, final String source) {
     if (_ADVDEF.__ADVDEF_PATH != null) {
       for (int quality = 3; quality <= 4; quality++) {
-        job._execute(
-            new _ADVDEF(job, quality, data, _ADVDEF.FROM_PREFIX + source));
+        job._execute(new _ADVDEF(job, quality, data,
+            _ADVDEF.FROM_PREFIX + source));
       }
     }
   }
@@ -93,43 +87,41 @@ final class _ADVDEF implements Runnable {
       return;
     }
 
-    try {
-      try (final TempDir dir = new TempDir()) {
+    try (final TempDir temp = new TempDir()) {
 
-        tempFile = Files.createTempFile(dir.getPath(), "advdef", //$NON-NLS-1$
-            ".gz"); //$NON-NLS-1$
-        try (
-            final OutputStream os = PathUtils.openOutputStream(tempFile)) {
-          os.write(this.m_data);
+      tempFile = Files.createTempFile(temp.getPath(), "advdef", //$NON-NLS-1$
+          ".gz"); //$NON-NLS-1$
+      try (final OutputStream os =
+          Files.newOutputStream(tempFile)) {
+        os.write(this.m_data);
+      }
+
+      try (final ExternalProcess ep =
+          ExternalProcessExecutor.getInstance().get()//
+              .setDirectory(temp.getPath())//
+              .setExecutable(_ADVDEF.__ADVDEF_PATH)
+              .addStringArgument("-" + this.m_quality) //$NON-NLS-1$
+              .addStringArgument("-i 64") //$NON-NLS-1$
+              .addStringArgument("-z")//$NON-NLS-1$
+              .addStringArgument("-q") //$NON-NLS-1$
+              .addPathArgument(tempFile)//
+              .setStdErr(EProcessStream.INHERIT)//
+              .setStdIn(EProcessStream.IGNORE)//
+              .setStdOut(EProcessStream.INHERIT)//
+              .setMergeStdOutAndStdErr(true)//
+              .get()) {
+
+        if ((retCode = ep.waitFor()) != 0) {
+          this.m_owner._processError(retCode, this.m_source,
+              _ADVDEF.__ADVDEF_PATH);
+          return;
         }
 
-        try (final ExternalProcess ep = ExternalProcessExecutor
-            .getInstance().use()//
-            .setDirectory(dir.getPath())//
-            .setExecutable(_ADVDEF.__ADVDEF_PATH)
-            .addStringArgument("-" + this.m_quality) //$NON-NLS-1$
-            .addStringArgument("-i 64") //$NON-NLS-1$
-            .addStringArgument("-z")//$NON-NLS-1$
-            .addStringArgument("-q") //$NON-NLS-1$
-            .addPathArgument(tempFile)//
-            .setLogger(this.m_owner._getLogger())//
-            .setStdErr(EProcessStream.REDIRECT_TO_LOGGER)//
-            .setStdIn(EProcessStream.IGNORE)//
-            .setStdOut(EProcessStream.REDIRECT_TO_LOGGER)//
-            .setMergeStdOutAndStdErr(true)//
-            .create()) {
-
-          if ((retCode = ep.waitFor()) != 0) {
-            this.m_owner._processError(retCode, this.m_source,
-                _ADVDEF.__ADVDEF_PATH);
-            return;
-          }
-
-          if (this.m_owner._isPromising(Files.readAttributes(tempFile, //
-              BasicFileAttributes.class).size())) {
-            this.m_owner._register(_Buffers._get()._load(tempFile),
-                this.m_source);
-          }
+        if (this.m_owner
+            ._isPromising(Files.readAttributes(tempFile, //
+                BasicFileAttributes.class).size())) {
+          this.m_owner._register(_Buffers._get()._load(tempFile),
+              this.m_source);
         }
       }
     } catch (final Throwable error) { // the error
