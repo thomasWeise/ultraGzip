@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import thomasWeise.tools.ByteBuffers;
 import thomasWeise.tools.Configuration;
 import thomasWeise.tools.EProcessStream;
 import thomasWeise.tools.ExternalProcess;
@@ -94,7 +95,7 @@ final class _Zopfli implements Runnable {
           os.write(this.m_owner.m_data);
         }
 
-        compressed = _Buffers._get()._load(ep.getStdOut());
+        compressed = ByteBuffers.get().load(ep.getStdOut());
         result =
             this.m_owner._register(compressed, _Zopfli.FROM);
 

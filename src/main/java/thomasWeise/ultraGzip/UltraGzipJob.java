@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import thomasWeise.tools.ByteBuffers;
 import thomasWeise.tools.ConsoleIO;
 import thomasWeise.tools.Execute;
 
@@ -54,7 +55,7 @@ public final class UltraGzipJob implements Callable<byte[]> {
    */
   final _ERegistrationResult _register(final byte[] data,
       final String from) {
-    final _Buffers buffer;
+    final ByteBuffers buffer;
     byte[] best;
 
     valid: {
@@ -71,7 +72,7 @@ public final class UltraGzipJob implements Callable<byte[]> {
       }
 
       // ok, it might be that the new data is better, let's check
-      buffer = _Buffers._get();
+      buffer = ByteBuffers.get();
 
       try (final ByteArrayInputStream bis =
           new ByteArrayInputStream(data)) {
@@ -79,7 +80,7 @@ public final class UltraGzipJob implements Callable<byte[]> {
         // GZIPInputStream
         try (final java.util.zip.GZIPInputStream gis =
             new java.util.zip.GZIPInputStream(bis)) {
-          if (!(buffer._compare(gis, this.m_data))) {
+          if (!(buffer.compare(gis, this.m_data))) {
             break valid;
           }
         }
@@ -96,7 +97,7 @@ public final class UltraGzipJob implements Callable<byte[]> {
         // GZIPInputStream
         try (final com.jcraft.jzlib.GZIPInputStream gis =
             new com.jcraft.jzlib.GZIPInputStream(bis)) {
-          if (!(buffer._compare(gis, this.m_data))) {
+          if (!(buffer.compare(gis, this.m_data))) {
             break valid;
           }
         }

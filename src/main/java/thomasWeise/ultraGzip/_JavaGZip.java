@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
+import thomasWeise.tools.ByteBuffers;
+
 /** The internal class for Java's GZIP jobs. */
 final class _JavaGZip implements Runnable {
 
@@ -46,15 +48,15 @@ final class _JavaGZip implements Runnable {
   /** {@inheritDoc} */
   @Override
   public final void run() {
-    final _Buffers buffers;
+    final ByteBuffers buffers;
     byte[] compressed;
     _ERegistrationResult res;
 
-    buffers = _Buffers._get();
+    buffers = ByteBuffers.get();
     res = _ERegistrationResult.INVALID;
     compressed = null;
     try (final ByteArrayOutputStream bos =
-        buffers._getBufferedOutputStream()) {
+        buffers.getBufferedOutputStream()) {
       try (final GZIPOutputStream gzo =
           new __JavaGZIPOutputStream(bos,
               this.m_owner.m_data.length, this.m_quality)) {

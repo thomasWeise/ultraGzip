@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import thomasWeise.tools.ByteBuffers;
 import thomasWeise.tools.ConsoleIO;
 
 /** The job for the ultra gzip I/O tool. */
@@ -63,7 +64,7 @@ public final class UltraGzipIOJob implements Runnable {
 
       try (final InputStream is = (this.m_useStdIn ? System.in//
           : Files.newInputStream(this.m_input))) {
-        data = _Buffers._get()._load(is);
+        data = ByteBuffers.get().load(is);
       }
 
       size = data.length;

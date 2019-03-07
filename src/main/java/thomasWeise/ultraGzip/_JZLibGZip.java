@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import com.jcraft.jzlib.GZIPOutputStream;
 
+import thomasWeise.tools.ByteBuffers;
+
 /** The internal class for JZLib's GZIP jobs. */
 final class _JZLibGZip implements Runnable {
 
@@ -46,15 +48,15 @@ final class _JZLibGZip implements Runnable {
   /** {@inheritDoc} */
   @Override
   public final void run() {
-    final _Buffers buffers;
+    final ByteBuffers buffers;
     byte[] compressed;
     _ERegistrationResult res;
 
-    buffers = _Buffers._get();
+    buffers = ByteBuffers.get();
     res = _ERegistrationResult.INVALID;
     compressed = null;
     try (final ByteArrayOutputStream bos =
-        buffers._getBufferedOutputStream()) {
+        buffers.getBufferedOutputStream()) {
       try (final GZIPOutputStream gzo =
           new __JZLibGZIPOutputStream(bos,
               this.m_owner.m_data.length, this.m_quality)) {

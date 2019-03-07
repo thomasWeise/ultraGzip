@@ -1,4 +1,4 @@
-package thomasWeise.ultraGzip;
+package thomasWeise.tools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,10 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /** A buffer to be used to store re-useable stuff */
-final class _Buffers {
+public final class ByteBuffers {
 
   /** the getter for the buffer */
-  private static final ThreadLocal<_Buffers> GET =
+  private static final ThreadLocal<ByteBuffers> GET =
       new __ThreadLocal();
 
   /** the output buffer */
@@ -20,7 +20,7 @@ final class _Buffers {
   private final byte[] m_byteBuffer;
 
   /** create the byte array output stream */
-  _Buffers() {
+  ByteBuffers() {
     super();
     this.m_outputBuffer = new __BOS();
     this.m_byteBuffer = new byte[8192];
@@ -31,14 +31,14 @@ final class _Buffers {
    *
    * @return the buffered output stream
    */
-  final ByteArrayOutputStream _getBufferedOutputStream() {
+  public final ByteArrayOutputStream getBufferedOutputStream() {
     this.m_outputBuffer.reset();
     return this.m_outputBuffer;
   }
 
   /**
    * Load a given file into memory. This method will invalidate
-   * the contents of {@link #_getBufferedOutputStream()}.
+   * the contents of {@link #getBufferedOutputStream()}.
    *
    * @param path
    *          the path to load
@@ -46,15 +46,15 @@ final class _Buffers {
    * @throws IOException
    *           if i/o fails
    */
-  final byte[] _load(final Path path) throws IOException {
+  public final byte[] load(final Path path) throws IOException {
     try (final InputStream is = Files.newInputStream(path)) {
-      return this._load(is);
+      return this.load(is);
     }
   }
 
   /**
    * Load a given stream into memory. This method will invalidate
-   * the contents of {@link #_getBufferedOutputStream()} .
+   * the contents of {@link #getBufferedOutputStream()} .
    *
    * @param is
    *          the stream to load
@@ -62,7 +62,8 @@ final class _Buffers {
    * @throws IOException
    *           if i/o fails
    */
-  final byte[] _load(final InputStream is) throws IOException {
+  public final byte[] load(final InputStream is)
+      throws IOException {
     return this.__load(is).toByteArray();
   }
 
@@ -103,8 +104,8 @@ final class _Buffers {
    * @throws IOException
    *           if i/o fails
    */
-  final boolean _compare(final InputStream is, final byte[] data)
-      throws IOException {
+  public final boolean compare(final InputStream is,
+      final byte[] data) throws IOException {
     return this.__load(is)._compare(data);
   }
 
@@ -140,13 +141,13 @@ final class _Buffers {
    *
    * @return the data.
    */
-  static final _Buffers _get() {
-    return _Buffers.GET.get();
+  public static final ByteBuffers get() {
+    return ByteBuffers.GET.get();
   }
 
   /** create */
   private static final class __ThreadLocal
-      extends ThreadLocal<_Buffers> {
+      extends ThreadLocal<ByteBuffers> {
     /** create the thread local buffer local */
     __ThreadLocal() {
       super();
@@ -154,8 +155,8 @@ final class _Buffers {
 
     /** {@inheritDoc} */
     @Override
-    protected final _Buffers initialValue() {
-      return new _Buffers();
+    protected final ByteBuffers initialValue() {
+      return new ByteBuffers();
     }
   }
 

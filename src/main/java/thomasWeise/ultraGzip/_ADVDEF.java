@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import thomasWeise.tools.ByteBuffers;
 import thomasWeise.tools.Configuration;
 import thomasWeise.tools.EProcessStream;
 import thomasWeise.tools.ExternalProcess;
@@ -120,8 +121,8 @@ final class _ADVDEF implements Runnable {
         if (this.m_owner
             ._isPromising(Files.readAttributes(tempFile, //
                 BasicFileAttributes.class).size())) {
-          this.m_owner._register(_Buffers._get()._load(tempFile),
-              this.m_source);
+          this.m_owner._register(
+              ByteBuffers.get().load(tempFile), this.m_source);
         }
       }
     } catch (final Throwable error) { // the error
