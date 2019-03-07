@@ -8,7 +8,8 @@
 	<version>0.8.8</version>
 	<packaging>jar</packaging>
 	<name>ultraGzip</name>
-	<description>This tools for achieving maximum GZIP compression quality (regardless of how long it may take).</description>
+	<description>This tools tries to achieve the maximum GZIP compression quality, regardless of how long it may take.
+	It therefore uses both existing GZIP implementations accessible from within Java as well as other additional tools that may be installed on the system.</description>
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>

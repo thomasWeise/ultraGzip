@@ -1,5 +1,6 @@
 package thomasWeise.tools;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,7 +10,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * An external process with which you can communicate via
  * standard streams that cannot deadlock.
  */
-public final class ExternalProcess extends _BasicProcess {
+public final class ExternalProcess implements Closeable {
 
   /** the wrapped process instance */
   Process m_process;
@@ -65,12 +66,9 @@ public final class ExternalProcess extends _BasicProcess {
    *          the logger to use
    * @param name
    *          the process' name
-   * @param closer
-   *          the process closer
    */
-  ExternalProcess(final Process process, final String name,
-      final IProcessCloser<? super ExternalProcess> closer) {
-    super(closer);
+  ExternalProcess(final Process process, final String name) {
+    super();
 
     if (process == null) {
       throw new IllegalArgumentException(((//
@@ -113,8 +111,13 @@ public final class ExternalProcess extends _BasicProcess {
     }
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Wait until the process has finished and obtain its return
+   * value.
+   *
+   * @return the return value
+   * @throws IOException
+   */
   public final int waitFor() throws IOException {
     return this.__close(false);
   }
@@ -139,251 +142,248 @@ public final class ExternalProcess extends _BasicProcess {
     returnValue = (-1);
     // <kill the main process>
     if (this.m_process != null) {
+
       try {
-        this._beforeClose();
+        shouldKill = kill;
+        if (!kill) {
+          waiter: for (;;) {
+            try {
+              returnValue = this.m_process.waitFor();
+              break waiter;
+            } catch (final InterruptedException ie) {
+              // ingore
+            } catch (final Throwable tt) {
+              shouldKill = true;
+              if (error == null) {
+                error = tt;
+              }
+              break waiter;
+            }
+          }
+        }
+
+        if (shouldKill) {
+          try {
+            // wait a bit in a last-ditch effort to let the
+            // process
+            // gracefully terminate
+            Thread.sleep(20L);
+          } catch (final InterruptedException ie) {
+            // ingore
+          }
+          this.m_process.destroy();
+          try {
+            // wait a bit in an effort to let destroy() work
+            Thread.sleep(20L);
+          } catch (final InterruptedException ie) {
+            // ingore
+          }
+        }
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
+        }
       } finally {
-        try {
-          shouldKill = kill;
-          if (!kill) {
-            waiter: for (;;) {
-              try {
-                returnValue = this.m_process.waitFor();
-                break waiter;
-              } catch (final InterruptedException ie) {
-                // ingore
-              } catch (final Throwable tt) {
-                shouldKill = true;
-                if (error == null) {
-                  error = tt;
-                }
-                break waiter;
-              }
-            }
-          }
+        this.m_process = null;
+      }
+    }
+    // </kill the main process>
 
-          if (shouldKill) {
+    // <kill stdout>
+    if (this.m_stdout != null) {
+      try {
+        this.m_stdout.close();
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
+        }
+      } finally {
+        this.m_stdout = null;
+      }
+    }
+
+    if (this.m_stdoutBuffer != null) {
+      try {
+        this.m_stdoutBuffer.close();
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
+        }
+      } finally {
+        this.m_stdoutBuffer = null;
+      }
+    }
+
+    if (this.m_stdoutWorker != null) {
+      try {
+        shouldKill = kill;
+        if (!kill) {
+          waiter: for (;;) {
             try {
-              // wait a bit in a last-ditch effort to let the
-              // process
-              // gracefully terminate
-              Thread.sleep(20L);
+              this.m_stdoutWorker.m_mode =
+                  _WorkerThread.SHUTTING_DOWN;
+              this.m_stdoutWorker.join();
+              break waiter;
             } catch (final InterruptedException ie) {
               // ingore
+            } catch (final Throwable tt) {
+              shouldKill = true;
+              if (error == null) {
+                error = tt;
+              }
+              break waiter;
             }
-            this.m_process.destroy();
+          }
+        }
+
+        if (shouldKill) {
+          this.m_stdoutWorker.m_mode = _WorkerThread.KILLED;
+        }
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
+        }
+      } finally {
+        this.m_stdoutWorker = null;
+      }
+    }
+    // </kill stdout>
+
+    // <kill stderr>
+    if (this.m_stderr != null) {
+      try {
+        this.m_stderr.close();
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
+        }
+      } finally {
+        this.m_stderr = null;
+      }
+    }
+
+    if (this.m_stderrBuffer != null) {
+      try {
+        this.m_stderrBuffer.close();
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
+        }
+      } finally {
+        this.m_stderrBuffer = null;
+      }
+    }
+
+    if (this.m_stderrWorker != null) {
+      try {
+        shouldKill = kill;
+        if (!kill) {
+          waiter: for (;;) {
             try {
-              // wait a bit in an effort to let destroy() work
-              Thread.sleep(20L);
+              this.m_stderrWorker.m_mode =
+                  _WorkerThread.SHUTTING_DOWN;
+              this.m_stderrWorker.join();
+              break waiter;
             } catch (final InterruptedException ie) {
               // ingore
-            }
-          }
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_process = null;
-        }
-      }
-      // </kill the main process>
-
-      // <kill stdout>
-      if (this.m_stdout != null) {
-        try {
-          this.m_stdout.close();
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_stdout = null;
-        }
-      }
-
-      if (this.m_stdoutBuffer != null) {
-        try {
-          this.m_stdoutBuffer.close();
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_stdoutBuffer = null;
-        }
-      }
-
-      if (this.m_stdoutWorker != null) {
-        try {
-          shouldKill = kill;
-          if (!kill) {
-            waiter: for (;;) {
-              try {
-                this.m_stdoutWorker.m_mode =
-                    _WorkerThread.SHUTTING_DOWN;
-                this.m_stdoutWorker.join();
-                break waiter;
-              } catch (final InterruptedException ie) {
-                // ingore
-              } catch (final Throwable tt) {
-                shouldKill = true;
-                if (error == null) {
-                  error = tt;
-                }
-                break waiter;
+            } catch (final Throwable tt) {
+              shouldKill = true;
+              if (error == null) {
+                error = tt;
               }
+              break waiter;
             }
           }
-
-          if (shouldKill) {
-            this.m_stdoutWorker.m_mode = _WorkerThread.KILLED;
-          }
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_stdoutWorker = null;
         }
-      }
-      // </kill stdout>
 
-      // <kill stderr>
-      if (this.m_stderr != null) {
-        try {
-          this.m_stderr.close();
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_stderr = null;
+        if (shouldKill) {
+          this.m_stderrWorker.m_mode = _WorkerThread.KILLED;
         }
-      }
-
-      if (this.m_stderrBuffer != null) {
-        try {
-          this.m_stderrBuffer.close();
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_stderrBuffer = null;
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
         }
+      } finally {
+        this.m_stderrWorker = null;
       }
+    }
+    // </kill stderr>
 
-      if (this.m_stderrWorker != null) {
-        try {
-          shouldKill = kill;
-          if (!kill) {
-            waiter: for (;;) {
-              try {
-                this.m_stderrWorker.m_mode =
-                    _WorkerThread.SHUTTING_DOWN;
-                this.m_stderrWorker.join();
-                break waiter;
-              } catch (final InterruptedException ie) {
-                // ingore
-              } catch (final Throwable tt) {
-                shouldKill = true;
-                if (error == null) {
-                  error = tt;
-                }
-                break waiter;
+    // <kill stdin>
+    if (this.m_stdin != null) {
+      try {
+        this.m_stdin.close();
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
+        }
+      } finally {
+        this.m_stdin = null;
+      }
+    }
+
+    if (this.m_stdinBuffer != null) {
+      try {
+        this.m_stdinBuffer.close();
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
+        }
+      } finally {
+        this.m_stdinBuffer = null;
+      }
+    }
+
+    if (this.m_stdinWorker != null) {
+      try {
+        shouldKill = kill;
+        if (!kill) {
+          waiter: for (;;) {
+            try {
+              this.m_stdinWorker.m_mode =
+                  _WorkerThread.SHUTTING_DOWN;
+              this.m_stdinWorker.join();
+              break waiter;
+            } catch (final InterruptedException ie) {
+              // ingore
+            } catch (final Throwable tt) {
+              shouldKill = true;
+              if (error == null) {
+                error = tt;
               }
+              break waiter;
             }
           }
-
-          if (shouldKill) {
-            this.m_stderrWorker.m_mode = _WorkerThread.KILLED;
-          }
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_stderrWorker = null;
-        }
-      }
-      // </kill stderr>
-
-      // <kill stdin>
-      if (this.m_stdin != null) {
-        try {
-          this.m_stdin.close();
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_stdin = null;
-        }
-      }
-
-      if (this.m_stdinBuffer != null) {
-        try {
-          this.m_stdinBuffer.close();
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_stdinBuffer = null;
-        }
-      }
-
-      if (this.m_stdinWorker != null) {
-        try {
-          shouldKill = kill;
-          if (!kill) {
-            waiter: for (;;) {
-              try {
-                this.m_stdinWorker.m_mode =
-                    _WorkerThread.SHUTTING_DOWN;
-                this.m_stdinWorker.join();
-                break waiter;
-              } catch (final InterruptedException ie) {
-                // ingore
-              } catch (final Throwable tt) {
-                shouldKill = true;
-                if (error == null) {
-                  error = tt;
-                }
-                break waiter;
-              }
-            }
-          }
-
-          if (shouldKill) {
-            this.m_stdinWorker.m_mode = _WorkerThread.KILLED;
-          }
-        } catch (final Throwable t) {
-          if (error == null) {
-            error = t;
-          }
-        } finally {
-          this.m_stdinWorker = null;
-        }
-      }
-
-      // </kill stdin>
-
-      if (error == null) {
-        error = this.m_error;
-      }
-      if (error != null) {
-        if (kill) {
-          ConsoleIO.stderr("Error while forcefully killing ", //$NON-NLS-1$
-              error);
-          throw new IOException(error);
         }
 
-        ConsoleIO.stderr("Error while gracefully shutting down ", //$NON-NLS-1$
+        if (shouldKill) {
+          this.m_stdinWorker.m_mode = _WorkerThread.KILLED;
+        }
+      } catch (final Throwable t) {
+        if (error == null) {
+          error = t;
+        }
+      } finally {
+        this.m_stdinWorker = null;
+      }
+    }
+
+    // </kill stdin>
+
+    if (error == null) {
+      error = this.m_error;
+    }
+    if (error != null) {
+      if (kill) {
+        ConsoleIO.stderr("Error while forcefully killing ", //$NON-NLS-1$
             error);
-
-        this.m_error = error;
+        throw new IOException(error);
       }
+
+      ConsoleIO.stderr("Error while gracefully shutting down ", //$NON-NLS-1$
+          error);
+
+      this.m_error = error;
     }
 
     return returnValue;

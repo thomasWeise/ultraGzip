@@ -18,6 +18,7 @@ The following arguments are supported:
 - `out=/path/to/file` the path to the file where the compressed data should be written to
 - `so` write the compressed contents to `stdout` instead of a file. You must specify either `out=...` or the `so` option.
 - `help` print the help screen
+- `gzip=/path/to/gzip`, `advdef=/path/to/advancecomp`, `7z=/path/to/7z`, `python3=/path/to/python3`, `pigz=/path/to/pigz`, `zopfli=/path/to/zopfli`: optional arguments for specifying the paths to the external software tools that may be used by this program.  
 
 
 ## 2. Requirements

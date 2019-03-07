@@ -6,13 +6,13 @@ import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * A builder for external processes.
  */
 public final class ExternalProcessBuilder
-    extends _BasicProcessBuilder<ExternalProcess,
-        ExternalProcessBuilder> {
+    implements Supplier<ExternalProcess> {
 
   /** the command */
   private final ArrayList<String> m_command;
@@ -37,8 +37,13 @@ public final class ExternalProcessBuilder
     this.setStdIn(EProcessStream.AS_STREAM);
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Set the executable
+   *
+   * @param path
+   *          the path to the executable
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       setExecutable(final Path path) {
     String s;
@@ -53,8 +58,13 @@ public final class ExternalProcessBuilder
     return this;
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Add a string command line argument
+   *
+   * @param s
+   *          the string command line argument
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       addStringArgument(final String s) {
     if (this.m_command.isEmpty()) {
@@ -69,23 +79,42 @@ public final class ExternalProcessBuilder
     return this;
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Add a path command line argument
+   *
+   * @param path
+   *          the path command line argument
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       addPathArgument(final Path path) {
     return this.addStringArgument(path.normalize().toString());
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Set a string environment variable for the sub-process
+   *
+   * @param key
+   *          the key
+   * @param value
+   *          the value
+   * @return this builder
+   */
   public final ExternalProcessBuilder putEnvironmentString(
       final String key, final String value) {
     this.m_pb.environment().put(key, value);
     return this;
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Set a path environment variable for the sub-process
+   *
+   * @param key
+   *          the key
+   * @param value
+   *          the value
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       putEnvironmentPath(final String key, final Path value) {
     final String s;
@@ -93,23 +122,36 @@ public final class ExternalProcessBuilder
     return this.putEnvironmentString(key, s);
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Remove an environment variable
+   *
+   * @param key
+   *          the variable to remove
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       removeEnvironmentVar(final String key) {
     this.m_pb.environment().remove(key);
     return this;
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Clear the environment, i.e., delete all variables
+   *
+   * @return this builder
+   */
   public final ExternalProcessBuilder clearEnvironment() {
     this.m_pb.environment().clear();
     return this;
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Set the directory in which the process should be executed
+   *
+   * @param dir
+   *          the directory
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       setDirectory(final Path dir) {
     this.m_pb
@@ -117,8 +159,13 @@ public final class ExternalProcessBuilder
     return this;
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Set the stdin stream definition
+   *
+   * @param def
+   *          the stream definition
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       setStdIn(final EProcessStream def) {
     final Redirect redirect;
@@ -131,8 +178,13 @@ public final class ExternalProcessBuilder
         "Cannot set stdin to " + def); //$NON-NLS-1$
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Read the stdin of this process from the given path
+   *
+   * @param source
+   *          the source
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       readStdInFrom(final Path source) {
     this.m_pb.redirectInput(
@@ -141,8 +193,13 @@ public final class ExternalProcessBuilder
     return this;
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Set the stdout stream definition
+   *
+   * @param def
+   *          the stream definition
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       setStdOut(final EProcessStream def) {
     final Redirect redirect;
@@ -155,8 +212,17 @@ public final class ExternalProcessBuilder
         "Cannot set stdout to " + def); //$NON-NLS-1$
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Store the stdout of this process to the given path
+   *
+   * @param dest
+   *          the destination
+   * @param append
+   *          should we append to the file identified by
+   *          {@code dest} if it exists ({@code true}) or
+   *          overwrite it ({@code false})?
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       writeStdOutTo(final Path dest, final boolean append) {
     final File file;
@@ -182,8 +248,13 @@ public final class ExternalProcessBuilder
     }
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Set the stderr stream definition
+   *
+   * @param def
+   *          the stream definition
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       setStdErr(final EProcessStream def) {
     final Redirect redirect;
@@ -198,8 +269,17 @@ public final class ExternalProcessBuilder
         "Cannot set stderr to " + def); //$NON-NLS-1$
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Store the stderr of this process to the given path
+   *
+   * @param dest
+   *          the destination
+   * @param append
+   *          should we append to the file identified by
+   *          {@code dest} if it exists ({@code true}) or
+   *          overwrite it ({@code false})?
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       writeStdErrTo(final Path dest, final boolean append) {
     final File file;
@@ -254,8 +334,14 @@ public final class ExternalProcessBuilder
     }
   }
 
-  /** {@inheritDoc} */
-  @Override
+  /**
+   * Should stdout and stderr be merged?
+   *
+   * @param merge
+   *          {@code true} if stdout and stderr should be merged,
+   *          {@code false} if they are separate streams
+   * @return this builder
+   */
   public final ExternalProcessBuilder
       setMergeStdOutAndStdErr(final boolean merge) {
     this.__validateMerge(merge);
@@ -299,8 +385,8 @@ public final class ExternalProcessBuilder
       throw new RuntimeException(ioe);
     }
 
-    external = new ExternalProcess(process,
-        this.m_command.get(0), this.m_closer);
+    external =
+        new ExternalProcess(process, this.m_command.get(0));
 
     realStreams = 0;
 
