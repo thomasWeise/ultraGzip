@@ -1,15 +1,14 @@
-# Ultra GZIP
+# UltraGzip
 
-[<img alt="Travis CI Build Status" src="https://img.shields.io/travis/thomasWeise/ultraGzip/master.svg" height="20"/>](https://travis-ci.org/thomasWeise/ultraGzip/)
+[<img alt="Travis CI Build Status" src="http://img.shields.io/travis/thomasWeise/ultraGzip/master.svg" height="20"/>](http://travis-ci.org/thomasWeise/ultraGzip/)
 
 This tool tries to achieve the maximum possible [`gzip`](https://en.wikipedia.org/wiki/Gzip) compression regardless of the necessary runtime.
 
-It therefore attempts to compress an array of bytes by using several different settings of different `gzip` implementations available
-for Java, as well as other compression software installed on the system.
+It therefore attempts to compress an array of bytes by using several different settings of different `gzip` implementations available for Java, as well as other compression software installed on the system.
 
-## 1. How to use `Ultra GZIP` from the Command Line
+## 1. How to use `UltraGzip` from the Command Line
 
-Run `java -jar ultraGzip-0.8.8-full.jar ARGUMENTS`
+Run `java -jar ultraGzip-0.8.9-full.jar ARGUMENTS`
 
 The following arguments are supported:
 
@@ -33,7 +32,7 @@ installing the following additional programs:
 * [pigz](http://zlib.net/pigz/) (`sudo apt-get install pigz`)
 * [Python 3's gzip](http://docs.python.org/3/library/gzip.html) library, which should normally be installed, too
 
-## 3. Use as `Ultra GZIP` in your Java Code
+## 3. Use as `UltraGzip` in your Java Code
 
 You can import the class `UltraGzip` and then create a job which takes an array of `byte` as input data and returns an array of `byte` as compression result. The job implements `Callable<byte[]>`.
 
