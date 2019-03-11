@@ -21,9 +21,12 @@ final class _GZPython implements Runnable {
   private static final String FROM =
       "Python GZip Implementation"; //$NON-NLS-1$
 
+  /** the argument */
+  static final String ARG = "python3"; //$NON-NLS-1$
+
   /** the GZIP executable */
   private static final Path __PYTHON_PATH =
-      Configuration.getExecutable("python3"); //$NON-NLS-1$
+      Configuration.getExecutable(_GZPython.ARG);
 
   /** the job */
   private final UltraGzipJob m_owner;

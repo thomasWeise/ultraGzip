@@ -15,13 +15,18 @@ import thomasWeise.tools.TempDir;
  * implementation.
  */
 final class _GZIP implements Runnable {
-
+  /** the argument */
+  static final String ARG = "gzip"; //$NON-NLS-1$
   /** the source name */
   private static final String FROM = "GZIP installation"; //$NON-NLS-1$
 
   /** the GZIP executable */
   private static final Path __GZIP_PATH =
-      Configuration.getExecutable("gzip"); //$NON-NLS-1$
+      Configuration.getExecutable(_GZIP.ARG);
+
+  /** the quality range */
+  private static final int[] QUALITY =
+      UltraGzip._qualityRange(1, 9, 7);
 
   /** the job */
   private final UltraGzipJob m_owner;
@@ -51,7 +56,7 @@ final class _GZIP implements Runnable {
    */
   static final void _enqueue(final UltraGzipJob job) {
     if (_GZIP.__GZIP_PATH != null) {
-      for (int quality = 7; quality <= 9; quality++) {
+      for (final int quality : _GZIP.QUALITY) {
         job._execute(new _GZIP(job, quality));
       }
     }

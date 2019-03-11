@@ -20,10 +20,11 @@ final class _Zopfli implements Runnable {
 
   /** the source name */
   private static final String FROM = "Zopfli installation"; //$NON-NLS-1$
-
+  /** the argument */
+  static final String ARG = "zopfli"; //$NON-NLS-1$
   /** the GZIP executable */
   private static final Path __ZOPFLI_PATH =
-      Configuration.getExecutable("zopfli"); //$NON-NLS-1$
+      Configuration.getExecutable(_Zopfli.ARG);
 
   /** the job */
   private final UltraGzipJob m_owner;
@@ -81,7 +82,8 @@ final class _Zopfli implements Runnable {
       epb.setDirectory(td.getPath());
       epb.addStringArgument("-c"); //$NON-NLS-1$
       epb.addStringArgument("--gzip"); //$NON-NLS-1$
-      epb.addStringArgument("--i2000"); //$NON-NLS-1$
+      epb.addStringArgument(
+          "--i" + ((UltraGzip.INTENSITY + 1) * 250)); //$NON-NLS-1$
       epb.addPathArgument(path);
 
       epb.setStdErr(EProcessStream.INHERIT);

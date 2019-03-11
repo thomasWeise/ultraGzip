@@ -17,6 +17,12 @@ public final class UltraGzipIO
     return new UltraGzipIOJobBuilder();
   }
 
+  /** {@inheritDoc} */
+  @Override
+  public final String toString() {
+    return "UltraGzipIO"; //$NON-NLS-1$
+  }
+
   /**
    * Get the globally shared instance of the Ultra Gzip tool
    *

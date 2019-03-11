@@ -19,25 +19,29 @@ public final class Main {
 
     thomasWeise.tools.Configuration.putCommandLine(args);
 
-    if (Boolean
-        .parseBoolean(Configuration.get(Main.PARAM_HELP))) {
-      System.out.print("Welcome to the UltraGzip Tool.");//$NON-NLS-1$
-      System.out
-          .println("Usage: java -jar ultraGzip.jar [ARGUMENTS]");//$NON-NLS-1$
-      System.out.println("Command line arguments are.");//$NON-NLS-1$
-      System.out.println(' ' + UltraGzipIOJobBuilder.PARAM_IN + //
-          "=path/to/file ... the path to the file to compress");//$NON-NLS-1$
-      System.out
-          .println(' ' + UltraGzipIOJobBuilder.PARAM_STDIN + //
-              " ... read data to compress from stdin instead of file");//$NON-NLS-1$
-      System.out.println(' ' + UltraGzipIOJobBuilder.PARAM_OUT + //
-          "=path/to/file ... the path to the file to write compressed output to");//$NON-NLS-1$
-      System.out
-          .println(' ' + UltraGzipIOJobBuilder.PARAM_STDOUT + //
-              " ... write data to stdout instead of file");//$NON-NLS-1$
-      System.out.println(' ' + Main.PARAM_HELP + //
-          "=path/to/file ... print this help screen");//$NON-NLS-1$
-
+    final boolean help =
+        Configuration.getBoolean(Main.PARAM_HELP);
+    ConsoleIO.stdout((out) -> {
+      out.println("Welcome to UltraGzip.");//$NON-NLS-1$
+      if (help) {
+        out.println(
+            "Usage: java -jar ultraGzip.jar [ARGUMENTS]");//$NON-NLS-1$
+        out.println("Command line arguments are.");//$NON-NLS-1$
+        out.println(' ' + UltraGzipIOJobBuilder.PARAM_IN + //
+        "=path/to/file ... the path to the file to compress");//$NON-NLS-1$
+        out.println(' ' + UltraGzipIOJobBuilder.PARAM_STDIN + //
+        " ... read data to compress from stdin instead of file");//$NON-NLS-1$
+        out.println(' ' + UltraGzipIOJobBuilder.PARAM_OUT + //
+        "=path/to/file ... the path to the file to write compressed output to");//$NON-NLS-1$
+        out.println(' ' + UltraGzipIOJobBuilder.PARAM_STDOUT + //
+        " ... write data to stdout instead of file");//$NON-NLS-1$
+        out.println(' ' + Main.PARAM_HELP + //
+        "=path/to/file ... print this help screen");//$NON-NLS-1$
+        Execute.printArgs(out);
+        UltraGzip.printArgs(out);
+      }
+    });
+    if (help) {
       return;
     }
 
@@ -49,7 +53,7 @@ public final class Main {
               .get())//
           .get();
     } catch (final Throwable error) {
-      ConsoleIO.stderr("Ultra GZIP has failed.", error);//$NON-NLS-1$
+      ConsoleIO.stderr("UltraGzip has failed.", error);//$NON-NLS-1$
     }
   }
 }

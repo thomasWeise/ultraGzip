@@ -65,11 +65,23 @@ public final class ConsoleIO {
    *          the stream
    */
   private static final void __printDate(final PrintStream ps) {
-    ps.print(new Date());
-    ps.print(" [thread "); //$NON-NLS-1$
-    ps.print(Thread.currentThread().getId());
-    ps.print(']');
-    ps.print(' ');
+    final StringBuilder sb;
+
+    sb = new StringBuilder();
+    sb.append(new Date());
+    sb.append(' ');
+    sb.append('[');
+    final Thread c = Thread.currentThread();
+    final String id = c.getName();
+    if ((id == null) || id.isEmpty()) {
+      sb.append("thread ");
+      sb.append(c.getId());// $NON-NLS-1$
+    } else {
+      sb.append(id);
+    }
+    sb.append(']');
+    sb.append(' ');
+    ps.print(sb.toString());
   }
 
   /**

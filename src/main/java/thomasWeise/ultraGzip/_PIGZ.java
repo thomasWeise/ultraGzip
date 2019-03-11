@@ -19,10 +19,15 @@ final class _PIGZ implements Runnable {
 
   /** the source name */
   private static final String FROM = "PIGZ installation"; //$NON-NLS-1$
-
+  /** the argument */
+  static final String ARG = "pigz"; //$NON-NLS-1$
   /** the PIGZ executable */
   private static final Path __PIGZ_PATH =
-      Configuration.getExecutable("pigz"); //$NON-NLS-1$
+      Configuration.getExecutable(_PIGZ.ARG);
+
+  /** the quality range */
+  private static final int[] QUALITY =
+      UltraGzip._qualityRange(1, 9, 8);
 
   /** the job */
   private final UltraGzipJob m_owner;
@@ -52,7 +57,7 @@ final class _PIGZ implements Runnable {
    */
   static final void _enqueue(final UltraGzipJob job) {
     if (_PIGZ.__PIGZ_PATH != null) {
-      for (int quality = 7; quality <= 9; quality++) {
+      for (final int quality : _PIGZ.QUALITY) {
         job._execute(new _PIGZ(job, quality));
       }
       job._execute(new _PIGZ(job, 11));

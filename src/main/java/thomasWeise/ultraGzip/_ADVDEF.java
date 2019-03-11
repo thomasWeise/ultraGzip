@@ -15,15 +15,22 @@ import thomasWeise.tools.TempDir;
 /** The compressor class used Advanced Computing. */
 final class _ADVDEF implements Runnable {
 
+  /** the argument */
+  static final String ARG = "advdef"; //$NON-NLS-1$
+
   /** the advdef executable */
   private static final Path __ADVDEF_PATH =
-      Configuration.getExecutable("advdef"); //$NON-NLS-1$
+      Configuration.getExecutable(_ADVDEF.ARG);
 
   /** the source name */
   private static final String FROM = "AdvanceComp"; //$NON-NLS-1$
   /** the prefix name */
   private static final String FROM_PREFIX =
       _ADVDEF.FROM + " recompressing results of "; //$NON-NLS-1$
+
+  /** the quality range */
+  private static final int[] QUALITY =
+      UltraGzip._qualityRange(1, 4, 3);
 
   /** the job */
   private final UltraGzipJob m_owner;
@@ -71,7 +78,7 @@ final class _ADVDEF implements Runnable {
   static final void _postprocess(final UltraGzipJob job,
       final byte[] data, final String source) {
     if (_ADVDEF.__ADVDEF_PATH != null) {
-      for (int quality = 3; quality <= 4; quality++) {
+      for (final int quality : _ADVDEF.QUALITY) {
         job._execute(new _ADVDEF(job, quality, data,
             _ADVDEF.FROM_PREFIX + source));
       }

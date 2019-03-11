@@ -20,16 +20,36 @@ final class _7ZIP implements Runnable {
   /** the source name */
   private static final String FROM = "7-Zip installation"; //$NON-NLS-1$
 
+  /** the command line argument */
+  static final String ARG = "7z"; //$NON-NLS-1$
+
   /** the GZIP executable */
   private static final Path __7ZIP_PATH =
-      Configuration.getExecutable("7z"); //$NON-NLS-1$
+      Configuration.getExecutable(_7ZIP.ARG);
 
-  /** the compression qualities to test */
-  private static final int[] QUALITIES = { 7, 8, 9 };
   /** the fast bytes to test */
-  private static final int[] FAST_BYTES = { -1, 200, 258 };
+  private static final int[] FAST_BYTES;
   /** the passes to test */
-  private static final int[] PASSES = { -1, 15 };
+  private static final int[] PASSES;
+
+  static {
+    if (UltraGzip.INTENSITY == 5) {
+      FAST_BYTES = new int[] { -1, 200, 258 };
+      PASSES = new int[] { -1, 15 };
+    } else {
+      if (UltraGzip.INTENSITY < 5) {
+        FAST_BYTES = new int[] { -1 };
+        PASSES = new int[] { -1 };
+      } else {
+        FAST_BYTES = new int[] { -1, 200, 258 };
+        PASSES = new int[] { -1, 32 };
+      }
+    }
+  }
+
+  /** the quality range */
+  private static final int[] QUALITY =
+      UltraGzip._qualityRange(1, 9, 7);
 
   /** the job */
   private final UltraGzipJob m_owner;
@@ -72,7 +92,7 @@ final class _7ZIP implements Runnable {
    */
   static final void _enqueue(final UltraGzipJob job) {
     if (_7ZIP.__7ZIP_PATH != null) {
-      for (final int quality : _7ZIP.QUALITIES) {
+      for (final int quality : _7ZIP.QUALITY) {
         for (final int fb : _7ZIP.FAST_BYTES) {
           for (final int passes : _7ZIP.PASSES) {
             job._execute(new _7ZIP(job, quality, fb, passes));

@@ -13,6 +13,10 @@ final class _JZLibGZip implements Runnable {
   /** the source name */
   private static final String FROM = "JZLib GZIP implementation"; //$NON-NLS-1$
 
+  /** the quality range */
+  private static final int[] QUALITY =
+      UltraGzip._qualityRange(1, 9, 7);
+
   /** the job */
   private final UltraGzipJob m_owner;
 
@@ -40,7 +44,7 @@ final class _JZLibGZip implements Runnable {
    *          the owning job
    */
   static final void _enqueue(final UltraGzipJob job) {
-    for (int quality = 7; quality <= 9; quality++) {
+    for (final int quality : _JZLibGZip.QUALITY) {
       job._execute(new _JZLibGZip(job, quality));
     }
   }

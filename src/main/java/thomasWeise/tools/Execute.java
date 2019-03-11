@@ -1,5 +1,6 @@
 package thomasWeise.tools;
 
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -53,6 +54,9 @@ public final class Execute {
   /** the task is canceled */
   static final int STATE_CANCELED = (Execute.STATE_DONE + 1);
 
+  /** the number of cores to use */
+  private static final String PARAM_CORES = "nCores";//$NON-NLS-1$
+
   /** the synchronizer object */
   private static final Object SYNCH = new Object();
 
@@ -60,12 +64,39 @@ public final class Execute {
   private static volatile __Task s_taskQueue = null;
 
   static {
-    int numProc, index;
+    final int[] np =
+        new int[] { Runtime.getRuntime().availableProcessors() };
+    Configuration.synchronizedConfig(() -> {
+      final Integer cores =
+          Configuration.getInteger(Execute.PARAM_CORES);
+      if (cores != null) {
+        final int i = cores.intValue();
+        if ((i > 0) && (i < 100)) {
+          np[0] = i;
+        }
+      }
+      Configuration.putInteger(Execute.PARAM_CORES, np[0]);
+    });
 
-    numProc = Runtime.getRuntime().availableProcessors();
-    for (index = 1; index <= numProc; index++) {
+    final int numProc = np[0];
+    for (int index = 1; index <= numProc; index++) {
       new __Worker(index).start();
     }
+    Execute.parallel(() -> {
+      ConsoleIO.stdout(("started " + //$NON-NLS-1$
+      Execute.PARAM_CORES + '=') + numProc + " worker threads"); //$NON-NLS-1$
+    });
+  }
+
+  /**
+   * print the command line arguments
+   *
+   * @param out
+   *          the print stream to write to
+   */
+  public static final void printArgs(final PrintStream out) {
+    out.println(' ' + Execute.PARAM_CORES + //
+        ": 1.., number of cores to use, default: autodetect");//$NON-NLS-1$
   }
 
   /**
@@ -167,7 +198,6 @@ public final class Execute {
         task.m_nextInQueue = oldQueue;
         oldQueue.m_prevInQueue = task;
         Execute.s_taskQueue = task;
-
       }
     }
   }

@@ -1,7 +1,6 @@
 package thomasWeise.ultraGzip;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.function.Supplier;
 
 import thomasWeise.tools.Configuration;
@@ -45,25 +44,28 @@ public final class UltraGzipIOJobBuilder
    * @return this instance
    */
   public final UltraGzipIOJobBuilder configure() {
-    if (Boolean.parseBoolean(
-        Configuration.get(UltraGzipIOJobBuilder.PARAM_STDIN))) {
-      this.setUseStdIn(true);
-    }
+    Configuration.synchronizedConfig(() -> {
+      if (Configuration.getBoolean(//
+          UltraGzipIOJobBuilder.PARAM_STDIN)) {
+        this.setUseStdIn(true);
+      }
 
-    String path =
-        Configuration.get(UltraGzipIOJobBuilder.PARAM_IN);
-    if (path != null) {
-      this.setInputPath(Paths.get(path));
-    }
+      Path path = Configuration.getPath(//
+          UltraGzipIOJobBuilder.PARAM_IN);
+      if (path != null) {
+        this.setInputPath(path);
+      }
 
-    if (Boolean.parseBoolean(
-        Configuration.get(UltraGzipIOJobBuilder.PARAM_STDOUT))) {
-      this.setUseStdOut(true);
-    }
-    path = Configuration.get(UltraGzipIOJobBuilder.PARAM_OUT);
-    if (path != null) {
-      this.setOutputPath(Paths.get(path));
-    }
+      if (Configuration.getBoolean(//
+          UltraGzipIOJobBuilder.PARAM_STDOUT)) {
+        this.setUseStdOut(true);
+      }
+      path = Configuration.getPath(//
+          UltraGzipIOJobBuilder.PARAM_OUT);
+      if (path != null) {
+        this.setOutputPath(path);
+      }
+    });
 
     return this;
   }
