@@ -8,10 +8,13 @@ It therefore attempts to compress an array of bytes by using several different s
 
 ## 1. How to use `UltraGzip` from the Command Line
 
-Run `java -jar ultraGzip-0.8.9-full.jar ARGUMENTS`
+Run `java -jar ultraGzip-0.9.0-full.jar ARGUMENTS`
 
 The following arguments are supported:
 
+- `help` print the help screen and all arguments
+- `gzipIntensity` is the intensity. It ranges from 0 to 10, with 5 as default. UltraGzip is a bit slow and uses many tools. 5 is a good default setting that will provide a very strong compression already. If you kick the setting up to 10, the tool will become very slow, but maybe can squeeze out another 2 or 3 bytes.
+- `nCores` the number of cores that are used, which is also the number of parallel jobs and external tools that can be executed at once. By default, this will be auto-detected as the number of available processors.
 - `in=/path/to/file` the path to the file with the source data to be compressed
 - `si` compress contents written to `stdin` instead of a file. You must specify either `in=...` or the `si` option. 
 - `out=/path/to/file` the path to the file where the compressed data should be written to
