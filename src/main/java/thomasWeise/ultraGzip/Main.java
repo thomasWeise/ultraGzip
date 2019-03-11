@@ -22,10 +22,11 @@ public final class Main {
     final boolean help =
         Configuration.getBoolean(Main.PARAM_HELP);
     ConsoleIO.stdout((out) -> {
-      out.println("Welcome to UltraGzip.");//$NON-NLS-1$
+      out.println("Welcome to UltraGzip "//$NON-NLS-1$
+          + UltraGzip.VERSION);
       if (help) {
-        out.println(
-            "Usage: java -jar ultraGzip.jar [ARGUMENTS]");//$NON-NLS-1$
+        out.println("Usage: java -jar ultraGzip-" + //$NON-NLS-1$
+        UltraGzip.VERSION + "-full.jar [ARGUMENTS]");//$NON-NLS-1$
         out.println("Command line arguments are.");//$NON-NLS-1$
         out.println(' ' + UltraGzipIOJobBuilder.PARAM_IN + //
         "=path/to/file ... the path to the file to compress");//$NON-NLS-1$

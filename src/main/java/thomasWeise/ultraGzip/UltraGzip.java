@@ -14,6 +14,9 @@ public final class UltraGzip
   /** the intensity parameter */
   private static final String PARAM_INTENSITY = "gzipIntensity"; //$NON-NLS-1$
 
+  /** the UtralGzip Version */
+  static final String VERSION = "0.9.0"; //$NON-NLS-1$
+
   /** the intensity */
   static final int INTENSITY;
 
@@ -31,7 +34,8 @@ public final class UltraGzip
 
     Execute.parallel(() -> {
       ConsoleIO.stdout(
-          UltraGzip.PARAM_INTENSITY + " (0:min...10:max) is " //$NON-NLS-1$
+          ("UltraGzip " + UltraGzip.VERSION + ':') + ' ' + //$NON-NLS-1$
+      UltraGzip.PARAM_INTENSITY + " (0:min...10:max) is " //$NON-NLS-1$
               + UltraGzip.INTENSITY);
     });
   }
@@ -109,8 +113,10 @@ public final class UltraGzip
         + "=/path/to/pigz, default: autodetect.. path to pigz binary");//$NON-NLS-1$
     out.println(' ' + _Zopfli.ARG
         + "=/path/to/zopfli, default: autodetect.. path to zopfli binary");//$NON-NLS-1$
-    out.println(
-        "The GPL-3 licensed UltraGzip tool makes use of many other tools, including 7zip, AdvanceComp, gzip, zopfli, pigz, JZLib (http://www.jcraft.com/jzlib/), and python, which have their own licensing requirements."); //$NON-NLS-1$
+    out.println("UltraGzip " + UltraGzip.VERSION + //$NON-NLS-1$
+        " is under the GPL 3 license.");//$NON-NLS-1$
+    out.println("UltraGzip " + UltraGzip.VERSION + //$NON-NLS-1$
+        " makes use of many other tools, including 7zip, AdvanceComp, gzip, zopfli, pigz, JZLib (http://www.jcraft.com/jzlib/), and python, which have their own licensing requirements."); //$NON-NLS-1$
 
   }
 
