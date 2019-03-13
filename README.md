@@ -8,7 +8,7 @@ It therefore attempts to compress an array of bytes by using several different s
 
 ## 1. How to use `UltraGzip` from the Command Line
 
-Run `java -jar ultraGzip-0.9.0-full.jar ARGUMENTS`
+Run `java -jar ultraGzip-0.9.1-full.jar ARGUMENTS`
 
 The following arguments are supported:
 

@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 
 import thomasWeise.tools.Configuration;
 import thomasWeise.tools.ConsoleIO;
-import thomasWeise.tools.Execute;
 
 /** The ultra gzip tool. */
 public final class UltraGzip
@@ -15,29 +14,11 @@ public final class UltraGzip
   private static final String PARAM_INTENSITY = "gzipIntensity"; //$NON-NLS-1$
 
   /** the UtralGzip Version */
-  static final String VERSION = "0.9.0"; //$NON-NLS-1$
+  static final String VERSION = "0.9.1"; //$NON-NLS-1$
 
-  /** the intensity */
-  static final int INTENSITY;
-
-  static {
-    final int[] d = new int[] { 5 };
-    Configuration.synchronizedConfig(() -> {
-      final Integer inten =
-          Configuration.getInteger(UltraGzip.PARAM_INTENSITY);
-      if (inten != null) {
-        d[0] = Math.max(0, Math.min(10, inten.intValue()));
-      }
-      Configuration.putInteger(UltraGzip.PARAM_INTENSITY, d[0]);
-    });
-    INTENSITY = d[0];
-
-    Execute.parallel(() -> {
-      ConsoleIO.stdout(
-          ("UltraGzip " + UltraGzip.VERSION + ':') + ' ' + //$NON-NLS-1$
-      UltraGzip.PARAM_INTENSITY + " (0:min...10:max) is " //$NON-NLS-1$
-              + UltraGzip.INTENSITY);
-    });
+  /** get the intensity */
+  static final int _getIntensity() {
+    return __IntensityHolder.INTENSITY;
   }
 
   /**
@@ -58,17 +39,18 @@ public final class UltraGzip
     int mi, ma;
 
     ma = max;
-    if (UltraGzip.INTENSITY == 5) {
+    if (UltraGzip._getIntensity() == 5) {
       mi = defa;
     } else {
-      if (UltraGzip.INTENSITY < 5) {
-        mi = Math.max(defa, (int) (Math.round(max
-            - ((UltraGzip.INTENSITY / 5.0) * (max - defa)))));
+      if (UltraGzip._getIntensity() < 5) {
+        mi = Math.max(defa,
+            (int) (Math
+                .round(max - ((UltraGzip._getIntensity() / 5.0)
+                    * (max - defa)))));
       } else {
-        mi = Math.min(defa,
-            (int) (Math.round(min
-                + ((1.0 - ((UltraGzip.INTENSITY - 5.0) / 5.0))
-                    * (defa - min)))));
+        mi = Math.min(defa, (int) (Math.round(min
+            + ((1.0 - ((UltraGzip._getIntensity() - 5.0) / 5.0))
+                * (defa - min)))));
       }
     }
 
@@ -113,11 +95,27 @@ public final class UltraGzip
         + "=/path/to/pigz, default: autodetect.. path to pigz binary");//$NON-NLS-1$
     out.println(' ' + _Zopfli.ARG
         + "=/path/to/zopfli, default: autodetect.. path to zopfli binary");//$NON-NLS-1$
-    out.println("UltraGzip " + UltraGzip.VERSION + //$NON-NLS-1$
-        " is under the GPL 3 license.");//$NON-NLS-1$
-    out.println("UltraGzip " + UltraGzip.VERSION + //$NON-NLS-1$
-        " makes use of many other tools, including 7zip, AdvanceComp, gzip, zopfli, pigz, JZLib (http://www.jcraft.com/jzlib/), and python, which have their own licensing requirements."); //$NON-NLS-1$
+  }
 
+  /**
+   * print the licensing message
+   *
+   * @param out
+   *          the print stream to write to
+   */
+  public static final void printLicense(final PrintStream out) {
+    out.print("UltraGzip "); //$NON-NLS-1$
+    out.print(UltraGzip.VERSION);
+    out.println(
+        " is under the GPL 3 license and published at http://github.com/thomasWeise/ultraGzip.");//$NON-NLS-1$
+
+    out.print("UltraGzip "); //$NON-NLS-1$
+    out.print(UltraGzip.VERSION);
+    out.println(
+        " makes use of many other great tools, including 7zip, AdvanceComp, gzip, JZLib, pigz, python, and zopfli, which have their own licensing requirements."); //$NON-NLS-1$
+
+    out.println(
+        "Our software includes the code of JZLib (http://www.jcraft.com/jzlib/, http://github.com/ymnk/jzlib), which is copyrighted by ymnk, JCraft,Inc. and is licensed through BSD style license."); //$NON-NLS-1$
   }
 
   /** {@inheritDoc} */
@@ -139,5 +137,31 @@ public final class UltraGzip
   private static final class __UltraGzipHolder {
     /** the globally shared instance */
     static final UltraGzip INSTANCE = new UltraGzip();
+  }
+
+  /** the intensity holder */
+  private static final class __IntensityHolder {
+
+    /** the intensity */
+    static final int INTENSITY;
+
+    static {
+      final int[] d = new int[] { 5 };
+      Configuration.synchronizedConfig(() -> {
+        final Integer inten =
+            Configuration.getInteger(UltraGzip.PARAM_INTENSITY);
+        if (inten != null) {
+          d[0] = Math.max(0, Math.min(10, inten.intValue()));
+        }
+        Configuration.putInteger(UltraGzip.PARAM_INTENSITY,
+            d[0]);
+      });
+      INTENSITY = d[0];
+
+      ConsoleIO.stdout(
+          ("UltraGzip " + UltraGzip.VERSION + ':') + ' ' + //$NON-NLS-1$
+              UltraGzip.PARAM_INTENSITY + " (0:min...10:max) is " //$NON-NLS-1$
+              + __IntensityHolder.INTENSITY);
+    }
   }
 }

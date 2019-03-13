@@ -83,7 +83,7 @@ final class _Zopfli implements Runnable {
       epb.addStringArgument("-c"); //$NON-NLS-1$
       epb.addStringArgument("--gzip"); //$NON-NLS-1$
       epb.addStringArgument(
-          "--i" + ((UltraGzip.INTENSITY + 1) * 250)); //$NON-NLS-1$
+          "--i" + ((UltraGzip._getIntensity() + 1) * 250)); //$NON-NLS-1$
       epb.addPathArgument(path);
 
       epb.setStdErr(EProcessStream.INHERIT);

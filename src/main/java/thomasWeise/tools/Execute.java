@@ -57,36 +57,8 @@ public final class Execute {
   /** the number of cores to use */
   private static final String PARAM_CORES = "nCores";//$NON-NLS-1$
 
-  /** the synchronizer object */
-  private static final Object SYNCH = new Object();
-
   /** the queue of tasks */
   private static volatile __Task s_taskQueue = null;
-
-  static {
-    final int[] np =
-        new int[] { Runtime.getRuntime().availableProcessors() };
-    Configuration.synchronizedConfig(() -> {
-      final Integer cores =
-          Configuration.getInteger(Execute.PARAM_CORES);
-      if (cores != null) {
-        final int i = cores.intValue();
-        if ((i > 0) && (i < 100)) {
-          np[0] = i;
-        }
-      }
-      Configuration.putInteger(Execute.PARAM_CORES, np[0]);
-    });
-
-    final int numProc = np[0];
-    for (int index = 1; index <= numProc; index++) {
-      new __Worker(index).start();
-    }
-    Execute.parallel(() -> {
-      ConsoleIO.stdout(("started " + //$NON-NLS-1$
-      Execute.PARAM_CORES + '=') + numProc + " worker threads"); //$NON-NLS-1$
-    });
-  }
 
   /**
    * print the command line arguments
@@ -109,7 +81,7 @@ public final class Execute {
    */
   static final void _enqueue(final __Task task) {
     __Task queue;
-    synchronized (Execute.SYNCH) {
+    synchronized (__Holder.SYNCH) {
       if (!(task.m_inQueue)) {
         // extract and replace old head of queue
         queue = Execute.s_taskQueue;
@@ -122,7 +94,7 @@ public final class Execute {
         }
 
         task.m_inQueue = true; // mark the task as enqueued
-        Execute.SYNCH.notify(); // wake waiting worker
+        __Holder.SYNCH.notify(); // wake waiting worker
       }
     }
   }
@@ -136,7 +108,7 @@ public final class Execute {
   static final void _delete(final __Task task) {
     __Task oldPrev, oldNext;
 
-    synchronized (Execute.SYNCH) {
+    synchronized (__Holder.SYNCH) {
       if (task.m_inQueue) {
         task.m_inQueue = false;// mark task as de-queued
 
@@ -177,7 +149,7 @@ public final class Execute {
   static final void _moveToFront(final __Task task) {
     __Task oldPrev, oldNext, oldQueue;
 
-    synchronized (Execute.SYNCH) {
+    synchronized (__Holder.SYNCH) {
       if (task.m_inQueue) {
 
         oldPrev = task.m_prevInQueue;
@@ -214,7 +186,7 @@ public final class Execute {
     __Task candidate, next;
 
     for (;;) {
-      synchronized (Execute.SYNCH) {
+      synchronized (__Holder.SYNCH) {
         candidate = Execute.s_taskQueue;
         if (candidate != null) {
           candidate.m_inQueue = false;
@@ -228,7 +200,7 @@ public final class Execute {
         }
         if (wait) {
           try {
-            Execute.SYNCH.wait();
+            __Holder.SYNCH.wait();
           } catch (@SuppressWarnings("unused") final InterruptedException iexp) {
             /** ignore **/
           }
@@ -764,4 +736,33 @@ public final class Execute {
     }
   }
 
+  /** the internal holder object */
+  private static final class __Holder {
+    /** the synchronizer object */
+    static final Object SYNCH = new Object();
+
+    static {
+      final int[] np = new int[] {
+          Runtime.getRuntime().availableProcessors() };
+      Configuration.synchronizedConfig(() -> {
+        final Integer cores =
+            Configuration.getInteger(Execute.PARAM_CORES);
+        if (cores != null) {
+          final int i = cores.intValue();
+          if ((i > 0) && (i < 100)) {
+            np[0] = i;
+          }
+        }
+        Configuration.putInteger(Execute.PARAM_CORES, np[0]);
+      });
+
+      final int numProc = np[0];
+      for (int index = 1; index <= numProc; index++) {
+        new __Worker(index).start();
+      }
+      ConsoleIO.stdout(("started " + //$NON-NLS-1$
+          Execute.PARAM_CORES + '=') + numProc
+          + " worker threads"); //$NON-NLS-1$
+    }
+  }
 }

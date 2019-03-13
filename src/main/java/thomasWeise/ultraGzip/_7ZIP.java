@@ -33,11 +33,11 @@ final class _7ZIP implements Runnable {
   private static final int[] PASSES;
 
   static {
-    if (UltraGzip.INTENSITY == 5) {
+    if (UltraGzip._getIntensity() == 5) {
       FAST_BYTES = new int[] { -1, 200, 258 };
       PASSES = new int[] { -1, 15 };
     } else {
-      if (UltraGzip.INTENSITY < 5) {
+      if (UltraGzip._getIntensity() < 5) {
         FAST_BYTES = new int[] { -1 };
         PASSES = new int[] { -1 };
       } else {

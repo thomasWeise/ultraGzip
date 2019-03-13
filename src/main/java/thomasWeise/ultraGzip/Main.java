@@ -24,6 +24,7 @@ public final class Main {
     ConsoleIO.stdout((out) -> {
       out.println("Welcome to UltraGzip "//$NON-NLS-1$
           + UltraGzip.VERSION);
+      UltraGzip.printLicense(out);
       if (help) {
         out.println("Usage: java -jar ultraGzip-" + //$NON-NLS-1$
         UltraGzip.VERSION + "-full.jar [ARGUMENTS]");//$NON-NLS-1$
@@ -37,7 +38,7 @@ public final class Main {
         out.println(' ' + UltraGzipIOJobBuilder.PARAM_STDOUT + //
         " ... write data to stdout instead of file");//$NON-NLS-1$
         out.println(' ' + Main.PARAM_HELP + //
-        "=path/to/file ... print this help screen");//$NON-NLS-1$
+        "... print this help screen");//$NON-NLS-1$
         Execute.printArgs(out);
         UltraGzip.printArgs(out);
       }
