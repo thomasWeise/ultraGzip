@@ -42,7 +42,7 @@ You can import the class `UltraGzip` and then create a job which takes an array 
 ## 4. Licensing
 
 This software uses [JZlib](http://www.jcraft.com/jzlib/) as one of its internal `gzip` utilities. Although our software here is `GPL` licensed, JZlib is under a [BSD-style license](http://www.jcraft.com/jzlib/LICENSE.txt).
-The GPL licensing of our software therefore _only_ applies to our own code, while the code of JZLib follows said [BSD-style license](http://www.jcraft.com/jzlib/LICENSE.txt).
+The GPL licensing of our software therefore _only_ applies to our own code, while the code of JZLib follows said [BSD-style license](http://www.jcraft.com/jzlib/LICENSE.txt), which is included in file LICENSE-JZlib.txt.
 The binary distribution of our software may include binary versions of JZlib.
 
 ## 5. Contact

@@ -88,7 +88,6 @@ final class _PIGZ implements Runnable {
       epb.setStdErr(EProcessStream.INHERIT);
       epb.setStdIn(EProcessStream.AS_STREAM);
       epb.setStdOut(EProcessStream.AS_STREAM);
-      epb.setDirectory(temp.getPath());
 
       try (final ExternalProcess ep = epb.get()) {
 
