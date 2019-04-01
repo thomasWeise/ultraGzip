@@ -14,7 +14,7 @@ public final class UltraGzip
   private static final String PARAM_INTENSITY = "gzipIntensity"; //$NON-NLS-1$
 
   /** the UtralGzip Version */
-  static final String VERSION = "0.9.2"; //$NON-NLS-1$
+  static final String VERSION = "0.9.3"; //$NON-NLS-1$
 
   /** get the intensity */
   static final int _getIntensity() {

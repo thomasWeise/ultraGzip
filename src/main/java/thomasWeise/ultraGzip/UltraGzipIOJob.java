@@ -3,25 +3,13 @@ package thomasWeise.ultraGzip;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import thomasWeise.tools.ByteBuffers;
 import thomasWeise.tools.ConsoleIO;
+import thomasWeise.tools.IOJob;
 
 /** The job for the ultra gzip I/O tool. */
-public final class UltraGzipIOJob implements Runnable {
-
-  /** the input path */
-  private final Path m_input;
-
-  /** should we use stdin instead of an input file? */
-  private final boolean m_useStdIn;
-
-  /** the output path */
-  private final Path m_output;
-
-  /** should we use stdout instead of an output file? */
-  private final boolean m_useStdOut;
+public final class UltraGzipIOJob extends IOJob {
 
   /**
    * create
@@ -30,14 +18,7 @@ public final class UltraGzipIOJob implements Runnable {
    *          the job builder
    */
   UltraGzipIOJob(final UltraGzipIOJobBuilder ugo) {
-    super();
-
-    this.m_input = ugo.m_input;
-    this.m_useStdIn = ugo.m_useStdIn;
-    this.m_output = ugo.m_output;
-    this.m_useStdOut = ugo.m_useStdOut;
-    UltraGzipIOJobBuilder._validate(this.m_input,
-        this.m_useStdIn, this.m_output, this.m_useStdOut);
+    super(ugo);
   }
 
   /** run! */
@@ -47,23 +28,24 @@ public final class UltraGzipIOJob implements Runnable {
     int size;
     String name;
 
-    if (this.m_useStdIn) {
+    if (this.isUsingStdIn()) {
       name = "stdin"; //$NON-NLS-1$
     } else {
-      name = this.m_input.getFileName().toString();
+      name = this.getInputPath().getFileName().toString();
     }
-    if (this.m_useStdOut) {
+    if (this.isUsingStdOut()) {
       name += "->stdout"; //$NON-NLS-1$
     } else {
       name = (((name + '-') + '>')
-          + this.m_output.getFileName().toString());
+          + this.getOutputPath().getFileName().toString());
     }
 
     ConsoleIO.stdout(name + " is now loading input data."); //$NON-NLS-1$
     try {
 
-      try (final InputStream is = (this.m_useStdIn ? System.in//
-          : Files.newInputStream(this.m_input))) {
+      try (
+          final InputStream is = (this.isUsingStdIn() ? System.in//
+              : Files.newInputStream(this.getInputPath()))) {
         data = ByteBuffers.get().load(is);
       }
 
@@ -79,8 +61,8 @@ public final class UltraGzipIOJob implements Runnable {
           "B, which will now be written to the output."); //$NON-NLS-1$
 
       try (final OutputStream os =
-          (this.m_useStdOut ? System.out : //
-              Files.newOutputStream(this.m_output))) {//
+          (this.isUsingStdOut() ? System.out : //
+              Files.newOutputStream(this.getOutputPath()))) {//
         os.write(data);
         size = data.length;
         data = null;
