@@ -69,7 +69,7 @@ public abstract class IOJobBuilder extends _IOJobBase
       throw new IllegalArgumentException(
           "Input path cannot be null"); //$NON-NLS-1$
     }
-    use = path.normalize().toAbsolutePath().normalize();
+    use = IOUtils.canonicalizePath(path);
     if (use == null) {
       throw new IllegalArgumentException(//
           "Input path cannot normalize to null, but '" + //$NON-NLS-1$
@@ -109,7 +109,7 @@ public abstract class IOJobBuilder extends _IOJobBase
       throw new IllegalArgumentException(
           "Output path cannot be null"); //$NON-NLS-1$
     }
-    use = path.normalize().toAbsolutePath().normalize();
+    use = IOUtils.canonicalizePath(path);
     if (use == null) {
       throw new IllegalArgumentException(//
           "Output path cannot normalize to null, but '" + //$NON-NLS-1$

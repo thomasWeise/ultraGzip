@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /** A configuration map */
 public final class Configuration {
@@ -220,25 +221,48 @@ public final class Configuration {
   }
 
   /**
-   * Get a value from the configuration
+   * Get a path value from the configuration
    *
    * @param key
    *          the key
    * @return the value
    */
   public static final Path getPath(final String key) {
+    return Configuration.getPath(key, null);
+  }
+
+  /**
+   * Get a path value from the configuration
+   *
+   * @param key
+   *          the key
+   * @param ifNotSet
+   *          the supplier if no path was found
+   * @return the value
+   */
+  public static final Path getPath(final String key,
+      final Supplier<Path> ifNotSet) {
     final String k = Objects.requireNonNull(key);
     final Object res;
+
     synchronized (Configuration.CONFIGURATION) {
       res = Configuration.CONFIGURATION.get(k);
       if (res == null) {
+        if (ifNotSet != null) {
+          final Path p =
+              IOUtils.canonicalizePath(ifNotSet.get());
+          if (p != null) {
+            Configuration.CONFIGURATION.put(k, p);
+          }
+          return p;
+        }
         return null;
       }
       if (res instanceof Path) {
         return ((Path) res);
       }
       if (res instanceof String) {
-        final Path p = Paths.get((String) res).normalize();
+        final Path p = IOUtils.canonicalizePath((String) res);
         Configuration.CONFIGURATION.put(k, p);
         return p;
       }
@@ -347,7 +371,7 @@ public final class Configuration {
               "', but it is not executable");//$NON-NLS-1$
         }
         if (res instanceof String) {
-          path = Paths.get((String) res).normalize();
+          path = IOUtils.canonicalizePath((String) res);
           if (Files.isExecutable(path)) {
             stdout = (name + " executable configured as "//$NON-NLS-1$
                 + path);
@@ -367,7 +391,7 @@ public final class Configuration {
       for (final String dirname : System.getenv("PATH")
           .split(File.pathSeparator)) {
         for (final String ext : new String[] { "", ".exe" }) {
-          path = Paths.get(dirname, name + ext).normalize();
+          path = IOUtils.canonicalizePath(dirname, name + ext);
           if (Files.isExecutable(path)) {
             stdout = (name + " executable detected in PATH as "
                 + path);
@@ -383,7 +407,8 @@ public final class Configuration {
             Runtime.getRuntime().exec("which " + name);
         try (BufferedReader in = new BufferedReader(
             new InputStreamReader(process.getInputStream()))) {
-          path = Paths.get(in.readLine()).normalize();
+          path =
+              IOUtils.canonicalizePath(Paths.get(in.readLine()));
           if (Files.isExecutable(path)) {
             stdout = (name + " executable found via which as "
                 + path);
