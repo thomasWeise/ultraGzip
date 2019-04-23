@@ -74,7 +74,7 @@ public final class ConsoleIO {
     final Thread c = Thread.currentThread();
     final String id = c.getName();
     if ((id == null) || id.isEmpty()) {
-      sb.append("thread ");
+      sb.append("thread ");//$NON-NLS-1$
       sb.append(c.getId());// $NON-NLS-1$
     } else {
       sb.append(id);

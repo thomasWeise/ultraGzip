@@ -48,7 +48,7 @@ public final class ExternalProcessBuilder
       setExecutable(final Path path) {
     String s;
 
-    s = path.normalize().toString();
+    s = IOUtils.canonicalizePath(path).toString();
     if (this.m_command.isEmpty()) {
       this.m_command.add(s);
     } else {
@@ -118,7 +118,7 @@ public final class ExternalProcessBuilder
   public final ExternalProcessBuilder
       putEnvironmentPath(final String key, final Path value) {
     final String s;
-    s = value.normalize().toString();
+    s = IOUtils.canonicalizePath(value).toString();
     return this.putEnvironmentString(key, s);
   }
 
@@ -154,8 +154,8 @@ public final class ExternalProcessBuilder
    */
   public final ExternalProcessBuilder
       setDirectory(final Path dir) {
-    this.m_pb
-        .directory(dir.normalize().toFile().getAbsoluteFile());
+    this.m_pb.directory(IOUtils.canonicalizePath(dir).toFile()
+        .getAbsoluteFile());
     return this;
   }
 
@@ -228,7 +228,8 @@ public final class ExternalProcessBuilder
     final File file;
     final Redirect redir;
 
-    file = dest.normalize().toFile().getAbsoluteFile();
+    file = IOUtils.canonicalizePath(dest).toFile()
+        .getAbsoluteFile();
     this.m_pb.redirectOutput(redir =
         (append ? Redirect.appendTo(file) : Redirect.to(file)));
     this.m_stdout = EProcessStream.REDIRECT_TO_PATH;
@@ -285,7 +286,8 @@ public final class ExternalProcessBuilder
     final File file;
 
     this.__checkRedirect();
-    file = dest.normalize().toFile().getAbsoluteFile();
+    file = IOUtils.canonicalizePath(dest).toFile()
+        .getAbsoluteFile();
     this.m_pb.redirectError(//
         append ? Redirect.appendTo(file) : Redirect.to(file));
     this.m_stderr = EProcessStream.REDIRECT_TO_PATH;
@@ -380,8 +382,8 @@ public final class ExternalProcessBuilder
     try {
       process = this.m_pb.start();
     } catch (final IOException ioe) {
-      ConsoleIO.stderr("Error when starting " + this.m_command,
-          ioe); // $NON-NLS-1$
+      ConsoleIO.stderr("Error when starting " + //$NON-NLS-1$
+          this.m_command, ioe); // $NON-NLS-1$
       throw new RuntimeException(ioe);
     }
 
@@ -409,7 +411,7 @@ public final class ExternalProcessBuilder
           external.m_stdin.close();
         } catch (final Throwable error) {
           ConsoleIO.stderr(
-              "strange error when closing process input stream",
+              "strange error when closing process input stream", //$NON-NLS-1$
               error);
         }
         // fall though to NullOutputStream.INSTANCE

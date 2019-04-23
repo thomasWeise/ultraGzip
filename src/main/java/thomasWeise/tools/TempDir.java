@@ -32,7 +32,8 @@ public final class TempDir implements Closeable {
 
     Path p1, p2;
 
-    p1 = Files.createTempDirectory(null);
+    p1 = IOUtils.canonicalizePath(//
+        Files.createTempDirectory(null));
     if (p1 == null) {
       throw new IOException(
           "Failed to create temporary directory."); //$NON-NLS-1$
