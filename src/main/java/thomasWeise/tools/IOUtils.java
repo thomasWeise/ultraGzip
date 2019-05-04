@@ -34,17 +34,9 @@ public final class IOUtils {
    * @return the canonical version
    */
   public static final Path canonicalizePath(final Path p) {
-    if (p == null) {
-      return null;
-    }
-
     Path r = p.normalize();
-    if (r == null) {
+    if ((r == null) || (Objects.equals(p, r))) {
       r = p;
-    } else {
-      if (Objects.equals(p, r)) {
-        r = p;
-      }
     }
 
     Path z = r.toAbsolutePath();
@@ -52,29 +44,35 @@ public final class IOUtils {
       if (Objects.equals(p, z)) {
         r = p;
       } else {
-        r = z;
+        if (!(Objects.equals(r, z))) {
+          r = z;
+        }
       }
     }
 
-    z = z.normalize();
+    z = r.normalize();
     if (z != null) {
       if (Objects.equals(p, z)) {
         r = p;
       } else {
-        r = z;
+        if (!(Objects.equals(r, z))) {
+          r = z;
+        }
       }
     }
 
     try {
-      z = z.toRealPath();
+      z = r.toRealPath();
       if (z != null) {
         if (Objects.equals(p, z)) {
           r = p;
         } else {
-          r = z;
+          if (!(Objects.equals(r, z))) {
+            r = z;
+          }
         }
       }
-    } catch (final IOException ioe) {
+    } catch (@SuppressWarnings("unused") final IOException ioe) {
       // ignore
     }
     return r;
